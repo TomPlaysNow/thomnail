@@ -5,6 +5,11 @@ use std::{
     process::{Command, Output},
 };
 
+/// Formats FFmpeg reads that are common for camera footage, editing exports and archives.
+pub const VIDEO_EXTENSIONS: [&str; 12] = [
+    "mp4", "m4v", "mov", "mkv", "avi", "webm", "mts", "m2ts", "mpg", "mpeg", "wmv", "3gp",
+];
+
 pub fn video_files(folder: &Path, recursive: bool) -> Result<Vec<PathBuf>, AppError> {
     if !folder.is_dir() {
         return Err(AppError::new("folderMissing"));
@@ -19,10 +24,7 @@ pub fn video_files(folder: &Path, recursive: bool) -> Result<Vec<PathBuf>, AppEr
         let entry = entry.map_err(AppError::wrap("folderUnreadable"))?;
         if entry.file_type().is_file()
             && entry.path().extension().is_some_and(|ext| {
-                matches!(
-                    ext.to_string_lossy().to_ascii_lowercase().as_str(),
-                    "mp4" | "mov" | "mkv" | "avi"
-                )
+                VIDEO_EXTENSIONS.contains(&ext.to_string_lossy().to_ascii_lowercase().as_str())
             })
         {
             files.push(entry.into_path());
@@ -176,13 +178,13 @@ mod tests {
     fn scan_is_recursive_only_when_requested_and_never_follows_links() {
         let root = tempfile::tempdir().unwrap();
         std::fs::create_dir(root.path().join("sub")).unwrap();
-        for name in ["clip.MP4", "sub/movie.mkv", "note.txt"] {
+        for name in ["clip.MP4", "camera.MTS", "sub/movie.mkv", "note.txt", "sub/export.webm"] {
             std::fs::write(root.path().join(name), b"").unwrap();
         }
         #[cfg(unix)]
         std::os::unix::fs::symlink(root.path(), root.path().join("sub/loop")).unwrap();
-        assert_eq!(video_files(root.path(), false).unwrap().len(), 1);
-        assert_eq!(video_files(root.path(), true).unwrap().len(), 2);
+        assert_eq!(video_files(root.path(), false).unwrap().len(), 2);
+        assert_eq!(video_files(root.path(), true).unwrap().len(), 4);
         assert!(video_files(&root.path().join("missing"), false).is_err());
     }
     #[test]

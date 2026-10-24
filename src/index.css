@@ -5,17 +5,23 @@
   --background: #030409;
   --surface: #0a0d17;
   --surface-raised: #101526;
+  --surface-hover: #1b2740;
   --border: #62799a;
   --text: #dfe6f5;
   --text-muted: #a7b2ca;
   --accent: #4be1ff;
   --button: #17bde0;
   --button-hover: #0fa3c4;
-  --error: #f2aa99;
   --button-text: #04222c;
+  --success: #94c9a1;
+  --success-surface: #20382a;
+  --warning: #e6b86a;
+  --error: #f2aa99;
+  --error-surface: #3b2523;
   --panel-border: rgba(140, 190, 255, 0.22);
   --panel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 24px rgba(0, 0, 0, 0.4);
   --focus-glow: 0 0 18px rgba(75, 225, 255, 0.3);
+  --content-width: 680px;
 }
 
 * {
@@ -34,7 +40,8 @@ body {
   background-attachment: fixed;
   color: var(--text);
   height: 100vh;
-  overflow: auto;
+  /* .app is the only scroll container. */
+  overflow: hidden;
 }
 
 .app {
@@ -42,7 +49,7 @@ body {
   flex-direction: column;
   height: 100vh;
   overflow-y: auto;
-  padding: 20px 24px;
+  padding: 20px max(24px, calc((100% - var(--content-width)) / 2));
   gap: 16px;
 }
 
@@ -58,37 +65,54 @@ body {
   color: var(--text);
 }
 
-.btn-icon {
-  background: none;
-  border: none;
-  font-size: 1.3rem;
-  cursor: pointer;
-  color: var(--text-muted);
-  padding: 4px 8px;
-  border-radius: 6px;
+button:disabled { opacity: 0.5; cursor: default; }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: var(--focus-glow);
 }
 
-.btn-icon:hover {
+.btn-icon {
+  display: flex;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.btn-icon:hover:not(:disabled) {
   background: var(--surface-raised);
+  color: var(--text);
 }
 
 /* DropZone */
 .dropzone {
+  width: 100%;
   border: 2px dashed rgba(140, 190, 255, 0.45);
   border-radius: 14px;
   padding: 32px 16px;
   text-align: center;
   cursor: pointer;
+  background: rgba(10, 13, 23, 0.72);
+  box-shadow: var(--panel-shadow);
+  color: inherit;
+  font: inherit;
   transition: border-color 0.2s, background 0.2s;
 }
 
-.dropzone:hover {
+.dropzone:hover:not(:disabled) {
   border-color: var(--accent);
   background: rgba(75, 225, 255, 0.06);
 }
 
-.dropzone-empty,
-.dropzone-selected {
+.dropzone-hover {
+  border-color: var(--accent);
+  background: rgba(75, 225, 255, 0.1);
+}
+
+.dropzone-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -96,7 +120,8 @@ body {
 }
 
 .dropzone-icon {
-  font-size: 2rem;
+  display: flex;
+  color: var(--accent);
 }
 
 .dropzone-label {
@@ -120,19 +145,27 @@ body {
 }
 
 /* Buttons */
+.actions {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-primary,
+.btn-secondary {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
 .btn-primary {
   background: var(--button);
   color: var(--button-text);
   border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 0.95rem;
   font-weight: 600;
-  cursor: pointer;
-  align-self: center;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background: var(--button-hover);
   box-shadow: var(--focus-glow);
 }
@@ -141,14 +174,10 @@ body {
   background: var(--surface-raised);
   color: var(--text);
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 0.95rem;
-  cursor: pointer;
 }
 
-.btn-secondary:hover {
-  background: #1b2740;
+.btn-secondary:hover:not(:disabled) {
+  background: var(--surface-hover);
 }
 
 /* Progress */
@@ -181,9 +210,6 @@ body {
 
 /* File list */
 .file-list {
-  flex: 1;
-  min-height: 80px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -233,30 +259,46 @@ body {
 .file-path { font-size: 0.75rem; color: var(--text-muted); }
 
 .status-pending .file-status { color: var(--text-muted); }
-.status-processing .file-status { color: #e6b86a; }
-.status-done .file-status { color: #94c9a1; }
+.status-processing .file-status { color: var(--warning); }
+.status-done .file-status { color: var(--success); }
 .status-error .file-status { color: var(--error); }
 
-/* Summary */
+/* Messages: notices explain a state, the summary reports a finished run. */
+.notice,
 .summary {
-  text-align: center;
-  padding: 10px;
+  padding: 10px 14px;
   border-radius: 8px;
-  font-weight: 600;
   font-size: 0.9rem;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
-  max-height: 160px;
-  overflow-y: auto;
   flex-shrink: 0;
   user-select: text;
 }
 
-.summary.success { background: #20382a; color: #94c9a1; }
-.summary.partial  { background: #3b2523; color: var(--error); }
-.summary.neutral  { background: var(--surface-raised); color: var(--text-muted); border: 1px solid var(--panel-border); }
+.notice {
+  background: var(--surface-raised);
+  border: 1px solid var(--panel-border);
+  color: var(--text-muted);
+}
 
-/* Timepicker-Row – direkt in der Hauptansicht */
+.notice-error {
+  background: var(--error-surface);
+  border-color: transparent;
+  color: var(--error);
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.summary {
+  text-align: center;
+  font-weight: 600;
+}
+
+.summary.success { background: var(--success-surface); color: var(--success); }
+.summary.partial { background: var(--error-surface); color: var(--error); }
+.summary.neutral { background: var(--surface-raised); color: var(--text-muted); border: 1px solid var(--panel-border); }
+
+/* Frame slider, directly in the main view */
 .timepicker-row {
   display: flex;
   align-items: center;
@@ -326,7 +368,7 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Settings overlay */
+/* Settings dialog */
 .settings-overlay {
   position: fixed;
   inset: 0;
@@ -370,6 +412,12 @@ body {
   color: var(--text-muted);
 }
 
+.settings-panel .checkbox-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
 .settings-panel input[type="text"],
 .settings-panel select {
   background: var(--background);
@@ -380,13 +428,7 @@ body {
   font-size: 0.85rem;
 }
 
-.settings-panel p { overflow-wrap: anywhere; white-space: pre-wrap; user-select: text; }
-
-.checkbox-label {
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 8px !important;
-}
+.settings-panel p { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; user-select: text; }
 
 .settings-actions {
   display: flex;
@@ -394,9 +436,9 @@ body {
   gap: 8px;
 }
 
-
-button:disabled { opacity: 0.5; cursor: default; }
-.dropzone { background: rgba(10, 13, 23, 0.72); box-shadow: var(--panel-shadow); color: inherit; font: inherit; width: 100%; }
-.dropzone-hover { border-color: var(--accent); background: rgba(75, 225, 255, 0.1); }
-.app-footer { margin-top: auto; text-align: center; font-size: 0.7rem; color: var(--text-muted); }
-button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; box-shadow: var(--focus-glow); }
+.app-footer {
+  margin-top: auto;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}

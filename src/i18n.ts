@@ -31,9 +31,15 @@ const de = {
   noVideos: 'Keine Videos gefunden.',
   summary: (success: number, total: number, skipped: number) =>
     `${success} von ${total} erfolgreich verarbeitet` + (skipped > 0 ? `, ${skipped} übersprungen.` : '.'),
+  summaryCancelled: (success: number, total: number, skipped: number) =>
+    `Abgebrochen: ${success} von ${total} verarbeitet` + (skipped > 0 ? `, ${skipped} übersprungen.` : '.'),
   progressDone: (done: number, total: number) => `${done} / ${total} abgeschlossen`,
-  status: { pending: 'Wartend', processing: 'Verarbeite…', done: 'Fertig', skipped: 'Übersprungen', error: 'Fehler' } as Record<FileStatus, string>,
+  progress: 'Fortschritt',
+  cancelling: 'Wird abgebrochen…',
+  chooseFolderFirst: 'Zuerst einen Ordner auswählen',
+  status: { pending: 'Wartend', processing: 'Verarbeite…', done: 'Fertig', skipped: 'Übersprungen', error: 'Fehler', cancelled: 'Abgebrochen' } as Record<FileStatus, string>,
   details: 'Details',
+  detailsLine: (detail: string) => `Details: ${detail}`,
   detailsTitle: 'Meldung und vollständigen Dateipfad anzeigen',
   ffmpegPath: 'ffmpeg-Pfad',
   ffmpegPlaceholder: 'Automatisch (Homebrew, MacPorts, PATH)',
@@ -84,9 +90,15 @@ const en: Messages = {
   noVideos: 'No videos found.',
   summary: (success, total, skipped) =>
     `${success} of ${total} processed successfully` + (skipped > 0 ? `, ${skipped} skipped.` : '.'),
+  summaryCancelled: (success, total, skipped) =>
+    `Cancelled: ${success} of ${total} processed` + (skipped > 0 ? `, ${skipped} skipped.` : '.'),
   progressDone: (done, total) => `${done} / ${total} completed`,
-  status: { pending: 'Waiting', processing: 'Processing…', done: 'Done', skipped: 'Skipped', error: 'Error' },
+  progress: 'Progress',
+  cancelling: 'Cancelling…',
+  chooseFolderFirst: 'Choose a folder first',
+  status: { pending: 'Waiting', processing: 'Processing…', done: 'Done', skipped: 'Skipped', error: 'Error', cancelled: 'Cancelled' },
   details: 'Details',
+  detailsLine: (detail) => `Details: ${detail}`,
   detailsTitle: 'Show message and full file path',
   ffmpegPath: 'ffmpeg path',
   ffmpegPlaceholder: 'Automatic (Homebrew, MacPorts, PATH)',
@@ -136,9 +148,15 @@ const zh: Messages = {
   noVideos: '未找到视频。',
   summary: (success, total, skipped) =>
     `${total} 个中已成功处理 ${success} 个` + (skipped > 0 ? `，跳过 ${skipped} 个。` : '。'),
+  summaryCancelled: (success, total, skipped) =>
+    `已取消：${total} 个中已处理 ${success} 个` + (skipped > 0 ? `，跳过 ${skipped} 个。` : '。'),
   progressDone: (done, total) => `已完成 ${done} / ${total}`,
-  status: { pending: '等待中', processing: '处理中…', done: '完成', skipped: '已跳过', error: '错误' },
+  progress: '进度',
+  cancelling: '正在取消…',
+  chooseFolderFirst: '请先选择文件夹',
+  status: { pending: '等待中', processing: '处理中…', done: '完成', skipped: '已跳过', error: '错误', cancelled: '已取消' },
   details: '详情',
+  detailsLine: (detail) => `详情：${detail}`,
   detailsTitle: '显示消息和完整文件路径',
   ffmpegPath: 'ffmpeg 路径',
   ffmpegPlaceholder: '自动（Homebrew、MacPorts、PATH）',
@@ -188,9 +206,15 @@ const hi: Messages = {
   noVideos: 'कोई वीडियो नहीं मिला।',
   summary: (success, total, skipped) =>
     `${total} में से ${success} सफलतापूर्वक प्रोसेस हुए` + (skipped > 0 ? `, ${skipped} छोड़े गए।` : '।'),
+  summaryCancelled: (success, total, skipped) =>
+    `रद्द किया गया: ${total} में से ${success} प्रोसेस हुए` + (skipped > 0 ? `, ${skipped} छोड़े गए।` : '।'),
   progressDone: (done, total) => `${done} / ${total} पूरे हुए`,
-  status: { pending: 'प्रतीक्षा में', processing: 'प्रोसेस हो रहा है…', done: 'पूरा', skipped: 'छोड़ा गया', error: 'त्रुटि' },
+  progress: 'प्रगति',
+  cancelling: 'रद्द किया जा रहा है…',
+  chooseFolderFirst: 'पहले कोई फ़ोल्डर चुनें',
+  status: { pending: 'प्रतीक्षा में', processing: 'प्रोसेस हो रहा है…', done: 'पूरा', skipped: 'छोड़ा गया', error: 'त्रुटि', cancelled: 'रद्द किया गया' },
   details: 'विवरण',
+  detailsLine: (detail) => `विवरण: ${detail}`,
   detailsTitle: 'संदेश और पूरा फ़ाइल पथ दिखाएँ',
   ffmpegPath: 'ffmpeg पथ',
   ffmpegPlaceholder: 'स्वचालित (Homebrew, MacPorts, PATH)',
@@ -240,9 +264,15 @@ const es: Messages = {
   noVideos: 'No se encontraron vídeos.',
   summary: (success, total, skipped) =>
     `${success} de ${total} procesados correctamente` + (skipped > 0 ? `, ${skipped} omitidos.` : '.'),
+  summaryCancelled: (success, total, skipped) =>
+    `Cancelado: ${success} de ${total} procesados` + (skipped > 0 ? `, ${skipped} omitidos.` : '.'),
   progressDone: (done, total) => `${done} / ${total} completados`,
-  status: { pending: 'En espera', processing: 'Procesando…', done: 'Listo', skipped: 'Omitido', error: 'Error' },
+  progress: 'Progreso',
+  cancelling: 'Cancelando…',
+  chooseFolderFirst: 'Elige primero una carpeta',
+  status: { pending: 'En espera', processing: 'Procesando…', done: 'Listo', skipped: 'Omitido', error: 'Error', cancelled: 'Cancelado' },
   details: 'Detalles',
+  detailsLine: (detail) => `Detalles: ${detail}`,
   detailsTitle: 'Mostrar el mensaje y la ruta completa del archivo',
   ffmpegPath: 'Ruta de ffmpeg',
   ffmpegPlaceholder: 'Automática (Homebrew, MacPorts, PATH)',
@@ -292,9 +322,15 @@ const fr: Messages = {
   noVideos: 'Aucune vidéo trouvée.',
   summary: (success, total, skipped) =>
     `${success} sur ${total} traitées avec succès` + (skipped > 0 ? `, ${skipped} ignorées.` : '.'),
+  summaryCancelled: (success, total, skipped) =>
+    `Annulé : ${success} sur ${total} traitées` + (skipped > 0 ? `, ${skipped} ignorées.` : '.'),
   progressDone: (done, total) => `${done} / ${total} terminées`,
-  status: { pending: 'En attente', processing: 'Traitement…', done: 'Terminé', skipped: 'Ignoré', error: 'Erreur' },
+  progress: 'Progression',
+  cancelling: 'Annulation…',
+  chooseFolderFirst: 'Choisissez d’abord un dossier',
+  status: { pending: 'En attente', processing: 'Traitement…', done: 'Terminé', skipped: 'Ignoré', error: 'Erreur', cancelled: 'Annulé' },
   details: 'Détails',
+  detailsLine: (detail) => `Détails : ${detail}`,
   detailsTitle: 'Afficher le message et le chemin complet du fichier',
   ffmpegPath: 'Chemin de ffmpeg',
   ffmpegPlaceholder: 'Automatique (Homebrew, MacPorts, PATH)',
@@ -348,7 +384,7 @@ const isAppError = (error: unknown): error is AppError =>
 export function describeError(t: Messages, error: unknown): string {
   if (isAppError(error)) {
     const text = (t.errors as Record<string, string>)[error.code] ?? t.errors.internal;
-    return error.detail ? `${text}\n\n${t.details}: ${error.detail}` : text;
+    return error.detail ? `${text}\n\n${t.detailsLine(error.detail)}` : text;
   }
   return error instanceof Error ? error.message : String(error);
 }

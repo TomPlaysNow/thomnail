@@ -1,5 +1,5 @@
 import { describeError, useT } from '../i18n';
-import type { FileProgress, FileStatus } from '../types';
+import type { FileItem, FileStatus } from '../types';
 
 const STATUS_CLASS: Record<FileStatus, string> = {
   pending: 'status-pending',
@@ -7,9 +7,10 @@ const STATUS_CLASS: Record<FileStatus, string> = {
   done: 'status-done',
   skipped: 'status-pending',
   error: 'status-error',
+  cancelled: 'status-pending',
 };
 
-export default function FileList({ files }: { files: FileProgress[] }) {
+export default function FileList({ files }: { files: FileItem[] }) {
   const t = useT();
   return (
     <div className="file-list">

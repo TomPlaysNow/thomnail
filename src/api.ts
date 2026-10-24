@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-dialog';
-import type { AppInfo, FileProgress, Settings, Summary } from './types';
+import type { AppInfo, ProcessEvent, Settings, Summary } from './types';
 
 // Commands reject with an AppError; see describeError in i18n.ts.
 export const api = {
@@ -11,6 +11,7 @@ export const api = {
   getSettings: () => invoke<Settings>('get_settings'),
   setSettings: (patch: Partial<Settings>) => invoke<Settings>('set_settings', { patch }),
   processFolder: (folderPath: string) => invoke<Summary>('process_folder', { folderPath }),
-  onProgress: (callback: (progress: FileProgress) => void) =>
-    listen<FileProgress>('process-progress', ({ payload }) => callback(payload)),
+  cancelProcessing: () => invoke<void>('cancel_processing'),
+  onProcessEvent: (callback: (event: ProcessEvent) => void) =>
+    listen<ProcessEvent>('process-event', ({ payload }) => callback(payload)),
 };

@@ -14,7 +14,7 @@ position of the frame and click **Set icons**. Thomnail extracts that frame from
 video with FFmpeg and sets it as the file's Finder icon. The video data itself stays
 unchanged.
 
-Version **1.6.0** is built with **Tauri 2, Rust and React/TypeScript**. It uses the
+Version **1.7.0** is built with **Tauri 2, Rust and React/TypeScript**. It uses the
 system WebView and does not bundle Chromium or Node.js.
 
 ## Features
@@ -23,13 +23,15 @@ system WebView and does not bundle Chromium or Node.js.
 - Pick the frame position between 1 and 99 % of each video (default: 50 %)
 - Optionally include subfolders and skip files that already have a custom icon
 - Progress, clear per-file error messages with technical details, and a summary
+- Cancel a running job; the current file is finished, the rest stays untouched
 - Sharp 512 × 512 icons with transparent padding, so landscape and portrait videos
   keep their shape
 - Interface in English, German, Chinese (Simplified), Hindi, Spanish and French;
   follows the system language by default, otherwise English
 - Settings are saved; settings from earlier Electron/VideoThumb versions are migrated
 
-Formats: `.mp4`, `.mov`, `.mkv`, `.avi`.
+Formats: `.mp4`, `.m4v`, `.mov`, `.mkv`, `.avi`, `.webm`, `.mts`, `.m2ts`, `.mpg`,
+`.mpeg`, `.wmv`, `.3gp`.
 
 ## Installation
 
@@ -50,7 +52,7 @@ Intel Mac, build the app yourself (see below).
 2. Use **Frame at … %** to set where in each video the preview image is taken.
 3. Optionally open Settings (gear icon) for language, subfolders and skipping files
    that already have an icon.
-4. Click **Set icons** and follow the progress.
+4. Click **Set icons** and follow the progress. **Cancel** stops after the current file.
 
 Existing icons are only regenerated when **Skip files that were already processed**
 is off, for example to upgrade older icons to 512 pixels.
@@ -138,7 +140,7 @@ For a ZIP to share:
 npm run make
 ```
 
-Result: `out/tauri/Thomnail-darwin-<arch>-1.6.0.zip`.
+Result: `out/tauri/Thomnail-darwin-<arch>-1.7.0.zip`.
 
 Local builds are ad-hoc signed. Developer ID signing and notarization for public
 distribution have to be set up separately.
@@ -214,6 +216,22 @@ SVG. The icon license and the Aurora adaptation are documented in
 [`resources/ICON-LICENSE.md`](resources/ICON-LICENSE.md).
 
 ## Changelog
+
+### 1.7.0
+
+- Cancel a running job; files after the current one are left untouched and marked
+  as cancelled
+- More formats: `.m4v`, `.webm`, `.mts`, `.m2ts`, `.mpg`, `.mpeg`, `.wmv`, `.3gp`
+- Large folders update faster: the file list is sent once, progress refers to files
+  by position
+- Line icons instead of emoji, all colours as design tokens, one scroll area and a
+  content width of at most 680 px
+- The **Set icons** button keeps its place and is disabled until a folder is chosen;
+  the summary appears above the file list
+- Settings dialog: announced as a dialog, closes with Escape, keeps keyboard focus
+  inside and returns it afterwards; clicking beside it no longer discards changes
+- Folders can no longer be dropped while the settings dialog is open
+- Progress bar and summary are announced to screen readers; the footer shows "macOS"
 
 ### 1.6.0
 
