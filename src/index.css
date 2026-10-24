@@ -370,7 +370,8 @@ body {
   color: var(--text-muted);
 }
 
-.settings-panel input[type="text"] {
+.settings-panel input[type="text"],
+.settings-panel select {
   background: var(--background);
   border: 1px solid var(--border);
   border-radius: 6px;

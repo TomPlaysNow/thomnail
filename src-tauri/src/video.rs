@@ -1,12 +1,13 @@
+use crate::error::AppError;
 use crate::settings::{frame_percentage, Settings};
 use std::{
     path::{Path, PathBuf},
     process::{Command, Output},
 };
 
-pub fn video_files(folder: &Path, recursive: bool) -> Result<Vec<PathBuf>, String> {
+pub fn video_files(folder: &Path, recursive: bool) -> Result<Vec<PathBuf>, AppError> {
     if !folder.is_dir() {
-        return Err("Bitte einen vorhandenen Ordner auswählen.".into());
+        return Err(AppError::new("folderMissing"));
     }
     let depth = if recursive { usize::MAX } else { 1 };
     let mut files = Vec::new();
@@ -15,7 +16,7 @@ pub fn video_files(folder: &Path, recursive: bool) -> Result<Vec<PathBuf>, Strin
         .max_depth(depth)
         .min_depth(1)
     {
-        let entry = entry.map_err(|e| format!("Ordner kann nicht gelesen werden: {e}"))?;
+        let entry = entry.map_err(AppError::wrap("folderUnreadable"))?;
         if entry.file_type().is_file()
             && entry.path().extension().is_some_and(|ext| {
                 matches!(
@@ -43,10 +44,11 @@ pub fn command(program: impl AsRef<std::ffi::OsStr>) -> Command {
     command
 }
 
+/// Errors are technical detail in English, like the tool output they carry.
 pub fn checked_output(command: &mut Command, name: &str) -> Result<Output, String> {
     let output = command
         .output()
-        .map_err(|e| format!("{name} konnte nicht gestartet werden: {e}"))?;
+        .map_err(|e| format!("{name} could not be started: {e}"))?;
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         let message: String = stderr
@@ -67,11 +69,6 @@ pub fn checked_output(command: &mut Command, name: &str) -> Result<Output, Strin
         ));
     }
     Ok(output)
-}
-
-/// Leads with an explanation for users and keeps the tool output for diagnosis.
-pub fn explained(explanation: &str) -> impl FnOnce(String) -> String + '_ {
-    move |details| format!("{explanation}\n\nDetails: {details}")
 }
 
 const FFMPEG_LOCATIONS: [&str; 3] = [
@@ -117,23 +114,17 @@ pub fn executables(settings: &Settings) -> (PathBuf, PathBuf) {
 }
 
 /// Checked once before a run instead of failing every file with the same message.
-pub fn check_tools(settings: &Settings) -> Result<(), String> {
+pub fn check_tools(settings: &Settings) -> Result<(), AppError> {
     let (ffmpeg, ffprobe) = executables(settings);
     // The tried path is the most useful detail when FFmpeg is missing.
-    checked_output(command(&ffmpeg).arg("-version"), &ffmpeg.display().to_string()).map_err(explained(
-        "FFmpeg wurde nicht gefunden oder lässt sich nicht starten. Bitte FFmpeg installieren \
-         (etwa mit „brew install ffmpeg“) oder den Pfad in den Einstellungen eintragen.",
-    ))?;
-    checked_output(command(&ffprobe).arg("-version"), &ffprobe.display().to_string()).map_err(explained(
-        "ffprobe wurde nicht gefunden. Es gehört zu FFmpeg und wird im selben Ordner wie ffmpeg erwartet.",
-    ))?;
+    checked_output(command(&ffmpeg).arg("-version"), &ffmpeg.display().to_string())
+        .map_err(AppError::wrap("ffmpegMissing"))?;
+    checked_output(command(&ffprobe).arg("-version"), &ffprobe.display().to_string())
+        .map_err(AppError::wrap("ffprobeMissing"))?;
     Ok(())
 }
 
-const UNREADABLE: &str =
-    "Vorschaubild konnte nicht erstellt werden. Die Datei ist beschädigt oder enthält kein lesbares Video.";
-
-pub fn extract_frame(video: &Path, image: &Path, settings: &Settings) -> Result<(), String> {
+pub fn extract_frame(video: &Path, image: &Path, settings: &Settings) -> Result<(), AppError> {
     let (ffmpeg, ffprobe) = executables(settings);
     let metadata = checked_output(
         command(ffprobe)
@@ -148,14 +139,14 @@ pub fn extract_frame(video: &Path, image: &Path, settings: &Settings) -> Result<
             .arg(video),
         "ffprobe",
     )
-    .map_err(explained(UNREADABLE))?;
+    .map_err(AppError::wrap("unreadableVideo"))?;
     let metadata: serde_json::Value = serde_json::from_slice(&metadata.stdout)
-        .map_err(|e| explained(UNREADABLE)(e.to_string()))?;
+        .map_err(AppError::wrap("unreadableVideo"))?;
     let duration = metadata["format"]["duration"]
         .as_str()
         .and_then(|value| value.parse::<f64>().ok())
         .filter(|value| value.is_finite() && *value > 0.0)
-        .ok_or("Die Videolänge konnte nicht ermittelt werden. Die Datei ist möglicherweise unvollständig.")?;
+        .ok_or(AppError::new("durationUnknown"))?;
     let seek = (duration * frame_percentage(&settings.frame_position)?).to_string();
     checked_output(
         command(ffmpeg)
@@ -171,11 +162,9 @@ pub fn extract_frame(video: &Path, image: &Path, settings: &Settings) -> Result<
             .arg(image),
         "ffmpeg",
     )
-    .map_err(explained(
-        "Vorschaubild konnte nicht erstellt werden. An der gewählten Stelle ließ sich kein Bild lesen.",
-    ))?;
+    .map_err(AppError::wrap("frameUnreadable"))?;
     if !image.is_file() {
-        return Err("Vorschaubild konnte nicht erstellt werden. FFmpeg hat kein Bild geliefert.".into());
+        return Err(AppError::new("noImage"));
     }
     Ok(())
 }
@@ -218,8 +207,8 @@ mod tests {
             ..Settings::default()
         })
         .unwrap_err();
-        assert!(error.starts_with("FFmpeg wurde nicht gefunden"), "{error}");
-        assert!(error.contains("Einstellungen") && error.contains("/missing/ffmpeg"), "{error}");
+        assert_eq!(error.code, "ffmpegMissing");
+        assert!(error.detail.unwrap().contains("/missing/ffmpeg"));
     }
     #[test]
     fn empty_path_resolves_to_installed_ffmpeg_or_bare_name() {
@@ -280,6 +269,7 @@ mod tests {
         .is_err());
         std::fs::write(&video, b"not a video").unwrap();
         let error = extract_frame(&video, &root.path().join("bad.png"), &Settings::default()).unwrap_err();
-        assert!(error.starts_with(UNREADABLE) && error.contains("Details:"), "{error}");
+        assert_eq!(error.code, "unreadableVideo");
+        assert!(error.detail.is_some_and(|detail| !detail.is_empty()));
     }
 }

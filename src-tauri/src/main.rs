@@ -1,8 +1,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+mod error;
 mod platform;
 mod settings;
 mod video;
 
+use error::AppError;
 use serde::Serialize;
 use settings::{Settings, SettingsPatch};
 use std::{
@@ -27,7 +29,7 @@ struct FileProgress {
     file_path: String,
     status: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
-    message: Option<String>,
+    error: Option<AppError>,
 }
 #[derive(Debug, Default, Serialize)]
 struct Summary {
@@ -41,7 +43,7 @@ fn process(
     settings: &Settings,
     helper: &Path,
     send: impl Fn(FileProgress),
-) -> Result<Summary, String> {
+) -> Result<Summary, AppError> {
     platform::ensure_supported()?;
     let files = video::video_files(folder, settings.recursive)?;
     if files.is_empty() {
@@ -49,9 +51,9 @@ fn process(
     }
     video::check_tools(settings)?;
     if !helper.is_file() {
-        return Err("Der Finder-Icon-Helfer fehlt im App-Paket. Bitte Thomnail neu installieren.".into());
+        return Err(AppError::with("helperMissing", helper.display()));
     }
-    let progress = |path: &Path, status, message| {
+    let progress = |path: &Path, status, error| {
         send(FileProgress {
             file: path
                 .file_name()
@@ -60,7 +62,7 @@ fn process(
                 .into_owned(),
             file_path: path.to_string_lossy().into_owned(),
             status,
-            message,
+            error,
         })
     };
     let mut summary = Summary {
@@ -72,7 +74,7 @@ fn process(
         progress(file, "pending", None);
     }
     // RAII cleans up every generated image, including failed extractions.
-    let temporary = tempfile::tempdir().map_err(|e| format!("Temporärer Ordner: {e}"))?;
+    let temporary = tempfile::tempdir().map_err(AppError::wrap("tempFolder"))?;
     for (index, file) in files.iter().enumerate() {
         if settings.skip_processed && platform::has_custom_icon(file) {
             summary.skipped += 1;
@@ -89,25 +91,25 @@ fn process(
                 summary.success += 1;
                 progress(file, "done", None);
             }
-            Err(message) => progress(file, "error", Some(message)),
+            Err(error) => progress(file, "error", Some(error)),
         }
     }
     Ok(summary)
 }
 
 #[tauri::command]
-fn get_settings(state: State<'_, AppState>) -> Result<Settings, String> {
+fn get_settings(state: State<'_, AppState>) -> Result<Settings, AppError> {
     state
         .settings
         .lock()
         .map(|s| s.clone())
-        .map_err(|e| e.to_string())
+        .map_err(AppError::wrap("internal"))
 }
 #[tauri::command]
-fn set_settings(patch: SettingsPatch, state: State<'_, AppState>) -> Result<Settings, String> {
-    let mut settings = state.settings.lock().map_err(|e| e.to_string())?;
+fn set_settings(patch: SettingsPatch, state: State<'_, AppState>) -> Result<Settings, AppError> {
+    let mut settings = state.settings.lock().map_err(AppError::wrap("internal"))?;
     let next = settings.patched(patch)?;
-    settings::save(&state.settings_path, &next)?;
+    settings::save(&state.settings_path, &next).map_err(AppError::wrap("settingsSave"))?;
     *settings = next.clone();
     Ok(next)
 }
@@ -144,21 +146,21 @@ async fn process_folder(
     folder_path: String,
     window: tauri::WebviewWindow,
     state: State<'_, AppState>,
-) -> Result<Summary, String> {
+) -> Result<Summary, AppError> {
     platform::ensure_supported()?;
     let settings = get_settings(state.clone())?;
     let resources = window
         .app_handle()
         .path()
         .resource_dir()
-        .map_err(|e| e.to_string())?;
+        .map_err(AppError::wrap("internal"))?;
     let helper = if cfg!(debug_assertions) {
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("binaries/swift-helper")
     } else {
         platform::helper_path(&resources)
     };
     if state.running.swap(true, Ordering::SeqCst) {
-        return Err("Eine Verarbeitung läuft bereits.".into());
+        return Err(AppError::new("alreadyRunning"));
     }
     let guard = RunningGuard(Arc::clone(&state.running));
     tauri::async_runtime::spawn_blocking(move || {
@@ -168,7 +170,7 @@ async fn process_folder(
         })
     })
     .await
-    .map_err(|e| e.to_string())?
+    .map_err(AppError::wrap("internal"))?
 }
 
 fn main() {
@@ -184,7 +186,7 @@ fn main() {
             ];
             let settings =
                 settings::load(&settings_path, &legacy_paths).unwrap_or_else(|message| {
-                    eprintln!("Einstellungen konnten nicht geladen werden: {message}");
+                    eprintln!("Settings could not be loaded: {message}");
                     Settings::default()
                 });
             app.manage(AppState {
@@ -222,7 +224,7 @@ mod tests {
             events.lock().unwrap().push(event.status)
         })
         .unwrap_err();
-        assert!(error.starts_with("FFmpeg wurde nicht gefunden"), "{error}");
+        assert_eq!(error.code, "ffmpegMissing");
         assert!(events.lock().unwrap().is_empty());
     }
     #[test]

@@ -2,8 +2,41 @@
 
 <img src="resources/icon.png" alt="Thomnail-App-Icon im Aurora-Design: Videobild über einem Filmstreifen" width="128" height="128">
 
+**Set a chosen video frame as the Finder icon for whole folders of videos.**
+Handy for video editors and anyone keeping video archives on a Mac.
+
+<img src="docs/images/app.png" alt="Thomnail main window: folder drop zone and a slider to pick the frame position" width="600">
+
+<img src="docs/images/finder-icons.png" alt="Video files whose Finder icons show a frame from each video, in landscape and portrait shape" width="600">
+
+## In English
+
+Thomnail is a small macOS app by **TomPlaysNow**. Choose or drop a folder, pick the
+position of the frame (1–99 % of each video, default 50 %) and click **Set icons**.
+Thomnail extracts that frame with FFmpeg and sets it as the file's Finder icon. The
+video data itself stays unchanged.
+
+- Whole folders at once, optionally including subfolders; files that already have a
+  custom icon can be skipped
+- Sharp 512 × 512 icons with transparent padding, so landscape and portrait videos
+  keep their shape
+- Formats: `.mp4`, `.mov`, `.mkv`, `.avi`
+- Interface in English, German, Chinese (Simplified), Hindi, Spanish and French;
+  it follows the system language by default
+- Requires macOS 11 or later and FFmpeg (`brew install ffmpeg`), which Thomnail finds
+  automatically
+- Built with Tauri 2, Rust and React/TypeScript; MIT licensed
+
+Download the ZIP from the [latest release](https://github.com/TomPlaysNow/thomnail/releases/latest).
+The app is ad-hoc signed, not notarized, so macOS blocks the first launch. Open
+**System Settings → Privacy & Security** and click **Open Anyway**, or run
+`xattr -dr com.apple.quarantine /Applications/Thomnail.app`.
+The rest of this README is in German.
+
+## Überblick
+
 Thomnail von **TomPlaysNow** setzt einen Video-Frame als Finder-Icon einer Videodatei.
-Version **1.5.0** verwendet **Tauri 2, Rust und React/TypeScript**. Die App nutzt die
+Version **1.6.0** verwendet **Tauri 2, Rust und React/TypeScript**. Die App nutzt die
 vorhandene System-WebView und liefert keinen eigenen Chromium-/Node.js-Unterbau mehr mit.
 
 ## Funktionen
@@ -14,6 +47,8 @@ vorhandene System-WebView und liefert keinen eigenen Chromium-/Node.js-Unterbau 
 - Fortschritt, verständliche Dateifehler mit technischen Details und Zusammenfassung anzeigen
 - Hoch- und Querformat unverzerrt in 512 × 512 Pixel einpassen; der Rand bleibt
   transparent, sodass das Icon die Form des Videos behält
+- Oberfläche auf Deutsch, Englisch, Chinesisch (vereinfacht), Hindi, Spanisch und
+  Französisch; standardmäßig in der Systemsprache, sonst Englisch
 - Einstellungen speichern; vorhandene Electron-/VideoThumb-Einstellungen übernehmen
 
 Formate: `.mp4`, `.mov`, `.mkv`, `.avi`.
@@ -96,7 +131,7 @@ Für ein ZIP zum Weitergeben:
 npm run make
 ```
 
-Ergebnis: `out/tauri/Thomnail-darwin-<arch>-1.5.0.zip`.
+Ergebnis: `out/tauri/Thomnail-darwin-<arch>-1.6.0.zip`.
 Die früheren Electron-Builds unter `out/Thomnail-darwin-arm64` werden nicht verändert.
 
 Die lokale App ist ad-hoc signiert. Eine Apple Developer-ID-Signierung und
@@ -107,7 +142,7 @@ verteilte Version muss das Signing separat eingerichtet werden.
 
 1. Einen Video-Ordner auswählen oder in das Fenster ziehen.
 2. Unter „Frame bei … %“ die relative Position des Vorschaubilds in jedem Video festlegen.
-3. Optional über das Zahnrad Unterordner und Überspringen vorhandener Icons einstellen.
+3. Optional über das Zahnrad Sprache, Unterordner und Überspringen vorhandener Icons einstellen.
 4. **Icons setzen** starten und den Fortschritt verfolgen.
 
 Die Einstellungen liegen unter macOS jetzt in
@@ -146,10 +181,12 @@ diese Metadaten unterstützen; beim Kopieren können sie verloren gehen.
 src/
   api.ts                  Tauri-Brücke und typisierte Ereignisse
   types.ts                Gemeinsame Frontend-Typen
+  i18n.ts                 Alle Texte und Fehlermeldungen in sechs Sprachen
   renderer.tsx            React-Einstieg
   renderer/               Oberfläche
 src-tauri/
   src/main.rs             App, Kommandos, Ablauf und Fortschritt
+  src/error.rs            Fehlercodes, die das Frontend übersetzt
   src/settings.rs         Speicherung, Validierung und Migration
   src/video.rs            Plattformübergreifende Videosuche und FFmpeg-Aufrufe
   src/platform/           Dateimanager-Integration je Betriebssystem
@@ -159,8 +196,13 @@ src-tauri/
 swift-helper/main.swift   Finder-Icon-Helfer
 build/                    Lizenzsammlung, Icon-Erzeugung und ZIP-Erstellung
 resources/                App-Icon und zusätzliche Lizenztexte
-docs/                     Designreferenz, Plattformplanung und Prüfberichte
+docs/                     Designreferenz, Plattformplanung, Prüfberichte, Screenshots
 ```
+
+Eine neue Sprache braucht einen Eintrag in `src/i18n.ts` (TypeScript meldet fehlende
+Texte) und in `LANGUAGES` in `src-tauri/src/settings.rs`. Die Texte in Chinesisch,
+Hindi, Spanisch und Französisch sind maschinell erstellt; Korrekturen von
+Muttersprachlern sind willkommen.
 
 ## App-Icon bearbeiten
 
@@ -194,6 +236,14 @@ Dateien. Geprüft werden reale Frame-Extraktion, Finder-Icons, unveränderte Vid
 Überspringen, Fehlerfälle und Fortschrittsereignisse.
 
 ## Änderungen
+
+### 1.6.0
+
+- Oberfläche in sechs Sprachen: Deutsch, Englisch, Chinesisch (vereinfacht), Hindi,
+  Spanisch und Französisch; Auswahl in den Einstellungen, Standard ist die Systemsprache
+- Fehler kommen aus Rust als feste Codes und werden im Frontend übersetzt; technische
+  Details bleiben unverändert
+- Screenshots und englische Kurzbeschreibung in der README
 
 ### 1.5.0
 

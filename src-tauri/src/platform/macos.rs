@@ -1,4 +1,5 @@
-use crate::video::{checked_output, command, explained};
+use crate::error::AppError;
+use crate::video::{checked_output, command};
 use std::path::Path;
 
 pub fn has_custom_icon(path: &Path) -> bool {
@@ -13,10 +14,9 @@ pub fn has_custom_icon(path: &Path) -> bool {
         .is_some_and(|byte| byte & 0x04 != 0)
 }
 
-pub fn set_icon(helper: &Path, video: &Path, image: &Path) -> Result<(), String> {
-    checked_output(command(helper).arg(video).arg(image), "Finder-Icon-Helfer").map_err(explained(
-        "Das Finder-Icon konnte nicht gesetzt werden. Bitte prüfen, ob die Datei beschreibbar ist.",
-    ))?;
+pub fn set_icon(helper: &Path, video: &Path, image: &Path) -> Result<(), AppError> {
+    checked_output(command(helper).arg(video).arg(image), "swift-helper")
+        .map_err(AppError::wrap("iconFailed"))?;
     Ok(())
 }
 
