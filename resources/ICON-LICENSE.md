@@ -4,6 +4,11 @@ Das App-Icon von Thomnail wurde von TomPlaysNow erstellt.
 
 Copyright © 2026 Tom (TomPlaysNow).
 
+Die Aurora-Variante vom 24. Oktober 2026 übernimmt das bestehende Motiv
+(herausgezogener Videoframe und Filmstreifen) mit Nachtblau, Cyan und einem
+dezenten violetten Hintergrundlicht. Die SVG-Datei ist die bearbeitbare Quelle;
+`bash build/icons.sh` erzeugt daraus PNG und macOS-ICNS neu.
+
 Die folgenden Dateien stehen unter **Creative Commons Namensnennung 4.0
 International (CC BY 4.0)**:
 

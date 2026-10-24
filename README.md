@@ -1,5 +1,7 @@
 # Thomnail
 
+<img src="resources/icon.png" alt="Thomnail-App-Icon im Aurora-Design: Videobild über einem Filmstreifen" width="128" height="128">
+
 Thomnail von **TomPlaysNow** setzt einen Video-Frame als Finder-Icon einer Videodatei.
 Version **1.4.0** verwendet **Tauri 2, Rust und React/TypeScript**. Die App nutzt die
 vorhandene System-WebView und liefert keinen eigenen Chromium-/Node.js-Unterbau mehr mit.
@@ -14,6 +16,23 @@ vorhandene System-WebView und liefert keinen eigenen Chromium-/Node.js-Unterbau 
 - Einstellungen speichern; vorhandene Electron-/VideoThumb-Einstellungen übernehmen
 
 Formate: `.mp4`, `.mov`, `.mkv`, `.avi`.
+
+## Aurora-Design
+
+Oberfläche und App-Icon verwenden das Aurora-Design: Nachtblau, Cyan für Aktionen
+und Fokus sowie ein dezenter violetter Hintergrundverlauf. Das Icon behält das
+Motiv aus herausgezogenem Videobild und Filmstreifen bei.
+
+Der Ablauf bleibt in einer Hauptansicht. Der Regler zeigt „Frame bei … %“ und ist
+ausschließlich dort verfügbar. Hellere Hilfstexte verbessern die Lesbarkeit;
+lange Ordnerpfade sind per Tooltip vollständig zugänglich. Meldungen in der
+Dateiliste lassen sich mit dem vollständigen Dateipfad aufklappen und kopieren.
+Buttons, Eingaben und aufklappbare Details haben sichtbare Tastaturfokusmarkierungen.
+
+Die [Aurora-Designreferenz und Figma-Vorlage](docs/aurora-app-design.md) enthält
+die vollständige Spezifikation ohne lokale Dateipfadabhängigkeiten. Sie beschreibt
+auch Standards und Funktionsvorschläge für künftige Apps, die über die aktuelle
+Thomnail-Umsetzung hinausgehen.
 
 ## Plattformen
 
@@ -81,7 +100,7 @@ verteilte Version muss das Signing separat eingerichtet werden.
 ## Bedienung und Einstellungen
 
 1. Einen Video-Ordner auswählen oder in das Fenster ziehen.
-2. Den Zeitpunkt des Frames mit dem Schieberegler festlegen.
+2. Unter „Frame bei … %“ die relative Position des Vorschaubilds in jedem Video festlegen.
 3. Optional über das Zahnrad Unterordner und Überspringen vorhandener Icons einstellen.
 4. **Icons setzen** starten und den Fortschritt verfolgen.
 
@@ -128,9 +147,27 @@ src-tauri/
   tauri.conf.json         Gemeinsame App-Konfiguration
   tauri.macos.conf.json   macOS-Helfer und Signierung
 swift-helper/main.swift   Finder-Icon-Helfer
-build/                    Lizenzsammlung und ZIP-Erstellung
+build/                    Lizenzsammlung, Icon-Erzeugung und ZIP-Erstellung
 resources/                App-Icon und zusätzliche Lizenztexte
+docs/                     Designreferenz, Plattformplanung und Prüfberichte
 ```
+
+## App-Icon bearbeiten
+
+Die bearbeitbare Quelle ist [`resources/icon.svg`](resources/icon.svg). Nach einer
+Änderung erzeugt das folgende Skript das transparente PNG in 1024 × 1024 Pixeln
+und die macOS-ICNS-Datei mit Größen von 16 bis 1024 Pixeln:
+
+```bash
+bash build/icons.sh
+```
+
+Dafür werden `rsvg-convert` aus librsvg und das macOS-Werkzeug `iconutil` benötigt.
+Für normale App-Builds werden die fertigen Icon-Dateien aus dem Repository
+verwendet; eine erneute Icon-Erzeugung ist nur nach Änderungen am SVG nötig.
+Anschließend baut `npm run package` die App mit dem aktualisierten Icon.
+Die Icon-Lizenz und die Aurora-Anpassung sind in
+[`resources/ICON-LICENSE.md`](resources/ICON-LICENSE.md) dokumentiert.
 
 ## Prüfungen
 
@@ -147,6 +184,14 @@ Dateien. Geprüft werden reale Frame-Extraktion, Finder-Icons, unveränderte Vid
 Überspringen, Fehlerfälle und Fortschrittsereignisse.
 
 ## Änderungen
+
+### Aktueller Stand auf Basis von 1.4.0
+
+- Aurora-Oberfläche und dazu passendes App-Icon in Nachtblau und Cyan
+- Verständlichere Frame-Beschriftung und ein einziger Regler in der Hauptansicht
+- Bessere Lesbarkeit und vollständig zugängliche Pfade und Fehlerdetails
+- Wiederholbare PNG-/ICNS-Erzeugung aus der SVG-Quelle mit `build/icons.sh`
+- Vollständige, eigenständig lesbare Aurora-Designreferenz für weitere Apps und Figma
 
 ### 1.4.0
 
