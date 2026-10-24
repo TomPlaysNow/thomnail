@@ -1,8 +1,8 @@
-# VideoThumb
+# Thomnail
 
-VideoThumb ist eine macOS-App, die aus jedem Video in einem Ordner einen Frame herausnimmt und ihn als **Finder-Icon** der Videodatei setzt. Im Finder siehst du dann statt des generischen Dateisymbols sofort, was im Video steckt – auch in Ordnern, Spotlight und auf externen Laufwerken, wo macOS selbst keine Vorschau erzeugt.
+Thomnail ist eine macOS-App von **Thomforge**, die aus jedem Video in einem Ordner einen Frame herausnimmt und ihn als **Finder-Icon** der Videodatei setzt. Im Finder siehst du dann statt des generischen Dateisymbols sofort, was im Video steckt – auch in Ordnern, Spotlight und auf externen Laufwerken, wo macOS selbst keine Vorschau erzeugt.
 
-Aktuelle Version: **1.1.0**
+Aktuelle Version: **1.2.0**
 
 ## Funktionen
 
@@ -25,7 +25,7 @@ Unterstützte Formate: `.mp4`, `.mov`, `.mkv`, `.avi`
 | Node.js + npm | nur zum Bauen aus dem Quellcode |
 | Xcode Command Line Tools | nur, wenn du den Swift-Helfer neu bauen willst (`xcode-select --install`) |
 
-VideoThumb sucht ffmpeg automatisch in dieser Reihenfolge:
+Thomnail sucht ffmpeg automatisch in dieser Reihenfolge:
 
 1. `/opt/homebrew/bin/ffmpeg` (Homebrew, Apple Silicon)
 2. `/usr/local/bin/ffmpeg` (Homebrew, Intel)
@@ -45,7 +45,7 @@ npm install
 npm run package
 ```
 
-Die fertige App liegt danach in `out/videothumb-darwin-arm64/videothumb.app`. Zieh sie nach `/Programme` bzw. `/Applications`.
+Die fertige App liegt danach in `out/Thomnail-darwin-arm64/Thomnail.app`. Zieh sie nach `/Programme` bzw. `/Applications`.
 
 Für ein ZIP zum Weitergeben:
 
@@ -75,7 +75,7 @@ Das Archiv landet in `out/make/zip/darwin/arm64/`.
 | Bereits verarbeitete Dateien überspringen | Dateien mit vorhandenem eigenem Icon auslassen |
 
 Die Einstellungen werden in
-`~/Library/Application Support/videothumb/settings.json` gespeichert.
+`~/Library/Application Support/Thomnail/settings.json` gespeichert. Einstellungen aus VideoThumb (vor 1.2.0) werden beim ersten Start automatisch übernommen.
 
 ### Icon wieder entfernen
 
@@ -92,7 +92,7 @@ Renderer (React)  ──IPC──▶  Main-Prozess (Electron)
                               └─ Temp-PNG löschen
 ```
 
-Ob eine Datei schon ein eigenes Icon hat, erkennt VideoThumb am Flag `kHasCustomIcon` im erweiterten Attribut `com.apple.FinderInfo`.
+Ob eine Datei schon ein eigenes Icon hat, erkennt Thomnail am Flag `kHasCustomIcon` im erweiterten Attribut `com.apple.FinderInfo`.
 
 Das Icon wird in der Datei selbst gespeichert (als Resource Fork). Das Video wird dabei **nicht** verändert. Auf Datenträgern ohne Unterstützung für erweiterte Attribute (z. B. manche FAT32- oder Netzlaufwerke) kann das Setzen fehlschlagen oder das Icon beim Kopieren verloren gehen.
 
@@ -159,6 +159,12 @@ resources/swift-helper /pfad/zum/video.mp4 /pfad/zum/bild.png
 | App lässt sich nicht öffnen | Siehe Hinweis zur fehlenden Signatur unter *Installation* |
 
 ## Änderungen
+
+### 1.2.0
+
+- Neuer Name: **Thomnail** (vorher VideoThumb), Teil der Marke Thomforge
+- Bundle-ID `com.thomforge.thomnail`
+- Einstellungen aus VideoThumb werden automatisch übernommen
 
 ### 1.1.0
 

@@ -24,7 +24,20 @@ function getSettingsPath() {
   return path.join(app.getPath('userData'), 'settings.json');
 }
 
+// Before 1.2.0 the app was called videothumb and kept its settings there
+function migrateLegacySettings() {
+  const legacyPath = path.join(app.getPath('appData'), 'videothumb', 'settings.json');
+  if (fs.existsSync(getSettingsPath()) || !fs.existsSync(legacyPath)) return;
+  try {
+    fs.mkdirSync(path.dirname(getSettingsPath()), { recursive: true });
+    fs.copyFileSync(legacyPath, getSettingsPath());
+  } catch (err) {
+    console.error('Alte Einstellungen konnten nicht übernommen werden:', err);
+  }
+}
+
 function loadSettings() {
+  migrateLegacySettings();
   const defaults = {
     ffmpegPath: findFfmpeg(),
     framePosition: DEFAULT_FRAME_POSITION,

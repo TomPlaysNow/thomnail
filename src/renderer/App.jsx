@@ -77,7 +77,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>VideoThumb</h1>
+        <h1>Thomnail</h1>
         <button className="btn-icon" onClick={() => setShowSettings(!showSettings)} title="Einstellungen">⚙</button>
       </header>
 

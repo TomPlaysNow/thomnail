@@ -31,10 +31,10 @@ const createWindow = () => {
 function setupAboutPanel() {
   const v = process.versions;
   app.setAboutPanelOptions({
-    applicationName: 'VideoThumb',
+    applicationName: 'Thomnail',
     applicationVersion: app.getVersion(),
     version: `${process.arch}`,
-    copyright: '© 2026 Tom · MIT-Lizenz',
+    copyright: '© 2026 Tom · Thomforge · MIT-Lizenz',
     credits: [
       'Setzt einen Frame aus jedem Video als Finder-Icon der Datei.',
       '',

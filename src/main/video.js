@@ -26,7 +26,7 @@ function extractFrame(videoPath, ffmpegPath, framePosition = '50%') {
   return new Promise((resolve, reject) => {
     const thumbPath = path.join(
       os.tmpdir(),
-      `videothumb_${Date.now()}_${path.basename(videoPath, path.extname(videoPath))}.png`
+      `thomnail_${Date.now()}_${path.basename(videoPath, path.extname(videoPath))}.png`
     );
 
     // Set binary paths globally for fluent-ffmpeg
