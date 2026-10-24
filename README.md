@@ -39,8 +39,8 @@ Thomnail sucht ffmpeg automatisch in dieser Reihenfolge:
 ### Aus dem Quellcode
 
 ```bash
-git clone https://github.com/TomPlaysNow/videothumb.git
-cd videothumb
+git clone https://github.com/TomPlaysNow/thomnail.git
+cd thomnail
 npm install
 npm run package
 ```
@@ -99,7 +99,7 @@ Das Icon wird in der Datei selbst gespeichert (als Resource Fork). Das Video wir
 ## Projektstruktur
 
 ```
-videothumb/
+thomnail/
 ├── src/
 │   ├── main.js              # Electron-Einstieg, Fenster, Über-Fenster
 │   ├── main/
