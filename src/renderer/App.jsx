@@ -19,13 +19,21 @@ export default function App() {
     });
   }, []);
 
+  const applyFolder = (folder) => {
+    setFolderPath(folder);
+    setFiles([]);
+    setSummary(null);
+  };
+
   const handleSelectFolder = async () => {
+    if (running) return;
     const folder = await window.api.openFolder();
-    if (folder) {
-      setFolderPath(folder);
-      setFiles([]);
-      setSummary(null);
-    }
+    if (folder) applyFolder(folder);
+  };
+
+  const handleDropFolder = async (droppedPath) => {
+    if (running) return;
+    if (await window.api.isDirectory(droppedPath)) applyFolder(droppedPath);
   };
 
   const handleFrameChange = async (val) => {
@@ -75,7 +83,7 @@ export default function App() {
 
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
 
-      <DropZone folderPath={folderPath} onSelect={handleSelectFolder} />
+      <DropZone folderPath={folderPath} onSelect={handleSelectFolder} onDrop={handleDropFolder} />
 
       <div className="timepicker-row">
         <span className="timepicker-label">Zeitpunkt</span>
@@ -104,10 +112,11 @@ export default function App() {
       {files.length > 0 && <FileList files={files} />}
 
       {summary && (
-        <div className={`summary ${summary.success === summary.total ? 'success' : 'partial'}`}>
+        <div className={`summary ${summary.success + summary.skipped === summary.total ? 'success' : 'partial'}`}>
           {summary.total === 0
             ? 'Keine Videos gefunden.'
-            : `${summary.success} von ${summary.total} erfolgreich verarbeitet.`}
+            : `${summary.success} von ${summary.total} erfolgreich verarbeitet` +
+              (summary.skipped > 0 ? `, ${summary.skipped} übersprungen.` : '.')}
         </div>
       )}
     </div>

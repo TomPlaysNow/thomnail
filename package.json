@@ -2,7 +2,7 @@
   "name": "videothumb",
   "productName": "videothumb",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Setzt Video-Frames als Finder-Icons für Videodateien (macOS)",
   "main": ".webpack/main",
   "private": true,
   "scripts": {

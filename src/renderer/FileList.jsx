@@ -4,6 +4,7 @@ const STATUS_LABEL = {
   pending: 'Wartend',
   processing: 'Verarbeite...',
   done: 'Fertig',
+  skipped: 'Übersprungen',
   error: 'Fehler',
 };
 
@@ -11,6 +12,7 @@ const STATUS_CLASS = {
   pending: 'status-pending',
   processing: 'status-processing',
   done: 'status-done',
+  skipped: 'status-pending',
   error: 'status-error',
 };
 

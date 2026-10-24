@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function DropZone({ folderPath, onSelect }) {
+export default function DropZone({ folderPath, onSelect, onDrop }) {
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'open';
@@ -11,8 +11,9 @@ export default function DropZone({ folderPath, onSelect }) {
     const item = e.dataTransfer.items[0];
     if (item && item.kind === 'file') {
       const file = item.getAsFile();
-      if (file && file.path) {
-        onSelect(file.path);
+      const filePath = file && window.api.getPathForFile(file);
+      if (filePath) {
+        onDrop(filePath);
       }
     }
   };
