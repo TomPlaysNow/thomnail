@@ -1,0 +1,6 @@
+{
+  "bundle": {
+    "resources": { "binaries/swift-helper": "swift-helper" },
+    "macOS": { "minimumSystemVersion": "11.0", "signingIdentity": "-" }
+  }
+}

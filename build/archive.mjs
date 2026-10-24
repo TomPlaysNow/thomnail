@@ -1,0 +1,10 @@
+import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+if (process.platform !== 'darwin') throw new Error('ZIP packaging currently targets macOS. Use npm run tauri -- build on Windows/Linux.');
+const { version } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+const directory = path.resolve('out/tauri');
+fs.mkdirSync(directory, { recursive: true });
+const archive = path.join(directory, `Thomnail-darwin-${process.arch}-${version}.zip`);
+execFileSync('/usr/bin/ditto', ['-c', '-k', '--sequesterRsrc', '--keepParent', 'src-tauri/target/release/bundle/macos/Thomnail.app', archive]);
+console.log(archive);

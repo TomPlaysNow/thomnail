@@ -1,27 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { api, errorMessage } from '../api';
+import type { Settings as SettingsData } from '../types';
 
-export default function Settings({ onClose }) {
-  const [settings, setSettings] = useState(null);
+export default function Settings({ onClose, onSaved }: { onClose: () => void; onSaved: (settings: SettingsData) => void }) {
+  const [settings, setSettings] = useState<SettingsData | null>(null);
+
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    window.api.getSettings().then(setSettings);
+    api.getSettings().then(setSettings).catch((e) => setError(errorMessage(e)));
   }, []);
 
-  const handleChange = (key, value) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+  const handleChange = <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => {
+    setSettings((prev) => prev ? ({ ...prev, [key]: value }) : prev);
   };
 
   const handleSave = async () => {
-    await window.api.setSettings(settings);
-    onClose();
+    if (!settings || saving) return;
+    setSaving(true);
+    try {
+      onSaved(await api.setSettings(settings));
+      onClose();
+    } catch (e) { setError(errorMessage(e)); }
+    finally { setSaving(false); }
   };
 
-  if (!settings) return null;
+  if (!settings) return <div className="settings-overlay"><div className="settings-panel"><p role="alert">{error || 'Einstellungen werden geladen…'}</p><button onClick={onClose}>Schließen</button></div></div>;
 
   return (
     <div className="settings-overlay" onClick={onClose}>
       <div className="settings-panel" onClick={(e) => e.stopPropagation()}>
         <h2>Einstellungen</h2>
+        {error && <p role="alert">{error}</p>}
 
         <label>
           ffmpeg-Pfad
@@ -66,7 +77,7 @@ export default function Settings({ onClose }) {
 
         <div className="settings-actions">
           <button className="btn-secondary" onClick={onClose}>Abbrechen</button>
-          <button className="btn-primary" onClick={handleSave}>Speichern</button>
+          <button className="btn-primary" disabled={saving} onClick={handleSave}>Speichern</button>
         </div>
       </div>
     </div>

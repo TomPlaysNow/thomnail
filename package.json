@@ -1,47 +1,33 @@
 {
   "name": "thomnail",
   "productName": "Thomnail",
-  "version": "1.3.0",
-  "description": "Setzt Video-Frames als Finder-Icons f\u00fcr Videodateien (macOS)",
-  "main": ".webpack/main",
+  "version": "1.4.0",
+  "description": "Video-Thumbnails als Finder-Icons – mit Tauri, Rust und React",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "start": "tauri dev",
+    "dev": "vite --host 127.0.0.1 --port 1420 --strictPort",
+    "build": "tsc --noEmit && vite build && node build/licenses.mjs",
+    "check": "tsc --noEmit",
+    "test": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "package": "tauri build --bundles app",
+    "make": "npm run package && node build/archive.mjs",
+    "tauri": "tauri"
   },
-  "keywords": [],
-  "author": {
-    "name": "TomPlaysNow",
-    "email": "143933295+TomPlaysNow@users.noreply.github.com"
-  },
+  "author": { "name": "TomPlaysNow", "email": "143933295+TomPlaysNow@users.noreply.github.com" },
   "license": "MIT",
-  "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.2",
-    "@babel/preset-react": "^7.28.5",
-    "@electron-forge/cli": "^7.11.1",
-    "@electron-forge/maker-deb": "^7.11.1",
-    "@electron-forge/maker-rpm": "^7.11.1",
-    "@electron-forge/maker-squirrel": "^7.11.1",
-    "@electron-forge/maker-zip": "^7.11.1",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.11.1",
-    "@electron-forge/plugin-fuses": "^7.11.1",
-    "@electron-forge/plugin-webpack": "^7.11.1",
-    "@electron/fuses": "^1.8.0",
-    "@vercel/webpack-asset-relocator-loader": "^1.7.3",
-    "babel-loader": "^10.1.1",
-    "css-loader": "^6.11.0",
-    "electron": "41.3.0",
-    "node-loader": "^2.1.0",
-    "style-loader": "^3.3.4"
-  },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1",
-    "fluent-ffmpeg": "^2.1.3",
+    "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/plugin-dialog": "^2.0.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.0.0"
   }
 }

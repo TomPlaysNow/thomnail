@@ -1,51 +1,69 @@
 # Thomnail
 
-Thomnail ist eine macOS-App von **TomPlaysNow**, die aus jedem Video in einem Ordner einen Frame herausnimmt und ihn als **Finder-Icon** der Videodatei setzt. Im Finder siehst du dann statt des generischen Dateisymbols sofort, was im Video steckt – auch in Ordnern, Spotlight und auf externen Laufwerken, wo macOS selbst keine Vorschau erzeugt.
-
-Aktuelle Version: **1.3.0**
+Thomnail von **TomPlaysNow** setzt einen Video-Frame als Finder-Icon einer Videodatei.
+Version **1.4.0** verwendet **Tauri 2, Rust und React/TypeScript**. Die App nutzt die
+vorhandene System-WebView und liefert keinen eigenen Chromium-/Node.js-Unterbau mehr mit.
 
 ## Funktionen
 
-- **Ordner wählen** per Klick oder per **Drag & Drop** in das Fenster
-- **Zeitpunkt wählbar**: Der Frame wird bei 1–99 % der Videolänge entnommen (Standard: 50 %)
-- **Rekursiv**: Auf Wunsch werden auch alle Unterordner verarbeitet
-- **Überspringen**: Dateien, die schon ein eigenes Icon haben, können ausgelassen werden
-- **Fortschritt pro Datei** mit Status *Wartend*, *Verarbeite…*, *Fertig*, *Übersprungen* oder *Fehler* inklusive Fehlermeldung
-- **Hoch- und Querformat**: Das Bild wird auf 320 × 320 Pixel eingepasst und mit schwarzen Balken aufgefüllt, nicht verzerrt
-- **Einstellungen bleiben erhalten** über Neustarts hinweg
+- Ordner per Dialog oder Drag & Drop auswählen
+- Frame-Position zwischen 1 und 99 % wählen (Standard: 50 %)
+- Optional Unterordner verarbeiten und Dateien mit eigenem Finder-Icon überspringen
+- Fortschritt, Dateifehler und Zusammenfassung anzeigen
+- Hoch- und Querformat unverzerrt in 320 × 320 Pixel einpassen
+- Einstellungen speichern; vorhandene Electron-/VideoThumb-Einstellungen übernehmen
 
-Unterstützte Formate: `.mp4`, `.mov`, `.mkv`, `.avi`
+Formate: `.mp4`, `.mov`, `.mkv`, `.avi`.
+
+## Plattformen
+
+**Die fertige Version unterstützt aktuell macOS.** Der Rust-Kern und die Oberfläche
+sind plattformübergreifend aufgebaut. Die macOS-Integration liegt getrennt in
+`src-tauri/src/platform/macos.rs`; der kleine Swift-Helfer nutzt `NSWorkspace.setIcon`.
+
+Windows und Linux benötigen eine eigene Integration in Explorer bzw. den jeweiligen
+Dateimanager. Sie sind noch **keine fertigen Produktversionen**. Auf diesen Plattformen
+ist „Icons setzen“ deaktiviert und der Rust-Kern gibt eine klare Meldung zurück.
+Die gemeinsame Videosuche und Frame-Extraktion können wiederverwendet werden.
+Siehe [Plattformplanung](docs/platforms.md).
 
 ## Voraussetzungen
 
-| Was | Version / Hinweis |
-| --- | --- |
-| macOS | Apple Silicon (arm64). Der Icon-Helfer nutzt `NSWorkspace` und läuft nur auf macOS. |
-| ffmpeg + ffprobe | z. B. `brew install ffmpeg` oder `sudo port install ffmpeg` |
-| Node.js + npm | nur zum Bauen aus dem Quellcode |
-| Xcode Command Line Tools | nur, wenn du den Swift-Helfer neu bauen willst (`xcode-select --install`) |
+Für die Nutzung:
 
-Thomnail sucht ffmpeg automatisch in dieser Reihenfolge:
+- macOS 11 oder neuer; der lokal gebaute Release entspricht der Architektur des Macs
+- Separat installierte Programme **ffmpeg und ffprobe**, zum Beispiel über Homebrew
+  (`brew install ffmpeg`) oder MacPorts (`sudo port install ffmpeg`)
 
-1. `/opt/homebrew/bin/ffmpeg` (Homebrew, Apple Silicon)
-2. `/usr/local/bin/ffmpeg` (Homebrew, Intel)
-3. `/opt/local/bin/ffmpeg` (MacPorts)
-4. `ffmpeg` aus dem `PATH`
+Zum Bauen zusätzlich:
 
-`ffprobe` wird im selben Ordner wie ffmpeg erwartet. In den Einstellungen kannst du einen eigenen Pfad eintragen.
+- Node.js 22.12 oder neuer und npm
+- Rust 1.90 oder neuer mit Cargo; empfohlen wird eine aktuelle stabile Toolchain
+- Xcode Command Line Tools (`xcode-select --install`)
 
-## Installation
+Thomnail sucht FFmpeg unter `/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin`
+und anschließend im `PATH`. In den Einstellungen kann ein eigener Pfad stehen.
+`ffprobe` muss neben dem ausgewählten `ffmpeg` liegen. Beide werden ohne Shell und
+mit getrennten Argumenten gestartet; Dateipfade mit Leerzeichen werden unterstützt.
 
-### Aus dem Quellcode
+## Bauen und starten
 
 ```bash
-git clone https://github.com/TomPlaysNow/thomnail.git
-cd thomnail
-npm install
+npm ci
+npm start
+```
+
+Das startet Tauri mit dem Vite-Entwicklungsserver. Der Swift-Helfer wird auf macOS
+automatisch für die Zielarchitektur gebaut.
+
+Für eine fertige macOS-App:
+
+```bash
 npm run package
 ```
 
-Die fertige App liegt danach in `out/Thomnail-darwin-arm64/Thomnail.app`. Zieh sie nach `/Programme` bzw. `/Applications`.
+Ergebnis: `src-tauri/target/release/bundle/macos/Thomnail.app`.
+Die App kann nach `/Applications` gezogen werden.
 
 Für ein ZIP zum Weitergeben:
 
@@ -53,151 +71,114 @@ Für ein ZIP zum Weitergeben:
 npm run make
 ```
 
-Das Archiv landet in `out/make/zip/darwin/arm64/`.
+Ergebnis: `out/tauri/Thomnail-darwin-<arch>-1.4.0.zip`.
+Die früheren Electron-Builds unter `out/Thomnail-darwin-arm64` werden nicht verändert.
 
-> **Hinweis:** Die App ist nicht signiert. Beim ersten Start meldet macOS eventuell, dass sie nicht geöffnet werden kann. Dann im Finder mit Rechtsklick → *Öffnen* starten oder unter *Systemeinstellungen → Datenschutz & Sicherheit* freigeben.
+Die lokale App ist ad-hoc signiert. Eine Apple Developer-ID-Signierung und
+Notarisierung sind damit nicht verbunden. Für eine öffentliche, notarisiert
+verteilte Version muss das Signing separat eingerichtet werden.
 
-## Bedienung
+## Bedienung und Einstellungen
 
-1. App starten.
-2. Einen Ordner mit Videos in das Fenster ziehen oder auf das Feld klicken und einen Ordner auswählen.
-3. Mit dem Schieberegler **Zeitpunkt** festlegen, an welcher Stelle des Videos der Frame genommen wird.
-4. Auf **Icons setzen** klicken.
-5. In der Liste siehst du den Status jeder Datei, darunter die Zusammenfassung.
+1. Einen Video-Ordner auswählen oder in das Fenster ziehen.
+2. Den Zeitpunkt des Frames mit dem Schieberegler festlegen.
+3. Optional über das Zahnrad Unterordner und Überspringen vorhandener Icons einstellen.
+4. **Icons setzen** starten und den Fortschritt verfolgen.
 
-Über das Zahnrad (⚙) oben rechts erreichst du die Einstellungen:
+Die Einstellungen liegen unter macOS jetzt in
+`~/Library/Application Support/io.github.tomplaysnow.thomnail/settings.json`.
+Beim ersten Start werden sie aus `Thomnail`, `thomnail` oder `videothumb` im selben
+Application-Support-Ordner übernommen. Die bisherigen Dateien bleiben erhalten.
+Änderungen werden atomar gespeichert; die laufende Verarbeitung nutzt einen festen
+Schnappschuss der Einstellungen.
 
-| Einstellung | Bedeutung |
-| --- | --- |
-| ffmpeg-Pfad | Pfad zur ffmpeg-Datei. Leer = ffmpeg aus dem `PATH`. |
-| Frame-Position | Wie der Schieberegler im Hauptfenster |
-| Unterordner rekursiv verarbeiten | Auch Videos in Unterordnern bearbeiten |
-| Bereits verarbeitete Dateien überspringen | Dateien mit vorhandenem eigenem Icon auslassen |
+Ein Icon entfernen: Datei im Finder auswählen → `⌘ I` → das kleine Icon oben links
+anklicken → `⌫`.
 
-Die Einstellungen werden in
-`~/Library/Application Support/Thomnail/settings.json` gespeichert. Einstellungen aus VideoThumb (vor 1.2.0) werden beim ersten Start automatisch übernommen.
+## Verarbeitung
 
-### Icon wieder entfernen
-
-Im Finder die Datei auswählen → `⌘ I` (Informationen) → oben links auf das kleine Icon klicken → `⌫` drücken.
-
-## Wie es funktioniert
-
-```
-Renderer (React)  ──IPC──▶  Main-Prozess (Electron)
-                              │
-                              ├─ ffprobe: Videolänge ermitteln
-                              ├─ ffmpeg:  Frame bei X % als PNG (320×320) ins Temp-Verzeichnis
-                              ├─ swift-helper: PNG per NSWorkspace.setIcon als Datei-Icon setzen
-                              └─ Temp-PNG löschen
+```text
+React/TypeScript → Tauri-Kommandos → Rust
+                                    ├─ Videos suchen
+                                    ├─ ffprobe: Videolänge ermitteln
+                                    ├─ ffmpeg: Frame als PNG erzeugen
+                                    ├─ Plattform-Modul: Finder-Icon setzen
+                                    └─ temporäre Bilder aufräumen
 ```
 
-Ob eine Datei schon ein eigenes Icon hat, erkennt Thomnail am Flag `kHasCustomIcon` im erweiterten Attribut `com.apple.FinderInfo`.
-
-Das Icon wird in der Datei selbst gespeichert (als Resource Fork). Das Video wird dabei **nicht** verändert. Auf Datenträgern ohne Unterstützung für erweiterte Attribute (z. B. manche FAT32- oder Netzlaufwerke) kann das Setzen fehlschlagen oder das Icon beim Kopieren verloren gehen.
+Die Videodaten bleiben unverändert. Das eigene Finder-Icon wird über macOS-Metadaten
+(Resource Fork und FinderInfo) gespeichert. Das Flag `kHasCustomIcon` dient zum
+Erkennen bereits verarbeiteter Dateien. Dateisysteme und Netzwerkfreigaben müssen
+diese Metadaten unterstützen; beim Kopieren können sie verloren gehen.
 
 ## Projektstruktur
 
-```
-thomnail/
-├── src/
-│   ├── main.js              # Electron-Einstieg, Fenster, Über-Fenster
-│   ├── main/
-│   │   ├── ipc.js           # IPC-Handler, Einstellungen, Ablauf der Verarbeitung
-│   │   └── video.js         # Videosuche und Frame-Extraktion mit ffmpeg
-│   ├── preload.js           # Sichere Brücke zwischen Renderer und Main (window.api)
-│   ├── renderer.js          # React-Einstieg
-│   ├── renderer/            # React-Komponenten (App, DropZone, FileList, Progress, Settings)
-│   ├── index.html
-│   └── index.css
-├── swift-helper/
-│   ├── main.swift           # Kommandozeilen-Helfer: setzt ein Bild als Datei-Icon
-│   └── build.sh             # Baut den Helfer nach resources/swift-helper
-├── resources/
-│   └── swift-helper         # Kompilierter Helfer (arm64), wird in die App gepackt
-├── forge.config.js          # Electron Forge: Packaging, Maker, Fuses
-└── webpack.*.config.js      # Webpack-Konfiguration für Main und Renderer
+```text
+src/
+  api.ts                  Tauri-Brücke und typisierte Ereignisse
+  types.ts                Gemeinsame Frontend-Typen
+  renderer.tsx            React-Einstieg
+  renderer/               Oberfläche
+src-tauri/
+  src/main.rs             App, Kommandos, Ablauf und Fortschritt
+  src/settings.rs         Speicherung, Validierung und Migration
+  src/video.rs            Plattformübergreifende Videosuche und FFmpeg-Aufrufe
+  src/platform/           Dateimanager-Integration je Betriebssystem
+  build.rs                Baut den Swift-Helfer nur auf macOS
+  tauri.conf.json         Gemeinsame App-Konfiguration
+  tauri.macos.conf.json   macOS-Helfer und Signierung
+swift-helper/main.swift   Finder-Icon-Helfer
+build/                    Lizenzsammlung und ZIP-Erstellung
+resources/                App-Icon und zusätzliche Lizenztexte
 ```
 
-## Entwicklung
+## Prüfungen
 
 ```bash
-npm start
+npm run check
+npm test
+cargo test --manifest-path src-tauri/Cargo.toml -- --ignored
+cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 ```
 
-startet die App im Entwicklungsmodus mit automatischem Neuladen. Die DevTools öffnen sich dabei automatisch, in der gepackten App nicht.
-
-### Swift-Helfer neu bauen
-
-Nur nötig, wenn du `swift-helper/main.swift` änderst:
-
-```bash
-./swift-helper/build.sh
-```
-
-Der Helfer lässt sich auch direkt testen:
-
-```bash
-resources/swift-helper /pfad/zum/video.mp4 /pfad/zum/bild.png
-```
-
-### Verfügbare Skripte
-
-| Befehl | Zweck |
-| --- | --- |
-| `npm start` | App im Entwicklungsmodus starten |
-| `npm run package` | App als `.app` bauen |
-| `npm run make` | Verteilbares ZIP erstellen |
-
-## Fehlerbehebung
-
-| Problem | Lösung |
-| --- | --- |
-| Alle Dateien zeigen *Fehler* mit „Cannot find ffmpeg“ o. ä. | ffmpeg installieren oder den Pfad in den Einstellungen korrigieren |
-| Icon erscheint nicht sofort im Finder | Finder-Fenster schließen und neu öffnen; notfalls `killall Finder` |
-| „setIcon failed“ | Prüfen, ob du Schreibrechte für die Datei hast und der Datenträger erweiterte Attribute unterstützt |
-| App lässt sich nicht öffnen | Siehe Hinweis zur fehlenden Signatur unter *Installation* |
+Die separat gestarteten Integrationstests benötigen FFmpeg/ffprobe und auf macOS
+den automatisch gebauten Swift-Helfer. Sie arbeiten ausschließlich mit temporären
+Dateien. Geprüft werden reale Frame-Extraktion, Finder-Icons, unveränderte Videodaten,
+Überspringen, Fehlerfälle und Fortschrittsereignisse.
 
 ## Änderungen
 
+### 1.4.0
+
+- Electron durch Tauri und Rust ersetzt; React-Oberfläche auf TypeScript umgestellt
+- Keine gebündelte Chromium-/Node.js-Laufzeit mehr
+- Dateimanager-Integration vom portablen Verarbeitungskern getrennt
+- Bestehende Einstellungen übernommen; Eingaben validiert und atomar gespeichert
+- Native Tauri-Ordnerauswahl und Drag & Drop
+- Fortschrittsbalken berücksichtigt auch übersprungene und fehlerhafte Dateien
+- Vollständige Lizenztexte der neuen npm-/Rust-Abhängigkeiten werden mitgeliefert
+
 ### 1.3.0
 
-- Eindeutige Autorenangabe: **TomPlaysNow**
-- Vollständige Fremdlizenztexte werden automatisch in App und ZIP mitgeliefert
-- Programmcode unter MIT, App-Icon unter CC BY 4.0 dokumentiert
-- Nicht verwendete Icon-Entwürfe und frühere Herstellerangaben entfernt
+- Autorenangabe TomPlaysNow, vollständige Fremdlizenztexte im Electron-Build
+- Programmcode unter MIT und App-Icon unter CC BY 4.0 dokumentiert
 
 ### 1.2.0
 
-- Neuer Name: **Thomnail** (vorher VideoThumb)
-- Bundle-ID `io.github.tomplaysnow.thomnail`
-- Einstellungen aus VideoThumb werden automatisch übernommen
-
-### 1.1.0
-
-- Drag & Drop von Ordnern funktioniert wieder
-- „Bereits verarbeitete Dateien überspringen“ ist jetzt wirksam
-- Einstellungen werden gespeichert
-- ffmpeg wird automatisch gefunden (Homebrew und MacPorts)
-- Absturz beim erneuten Öffnen des Fensters über das Dock behoben
-- Ausführliches Über-Fenster
-- DevTools nur noch im Entwicklungsmodus
-
-### 1.0.0
-
-- Erste Version
+- Neuer Name Thomnail (zuvor VideoThumb) und Migration der Einstellungen
 
 ## Lizenz
 
-Der Programmcode steht unter der [MIT-Lizenz](LICENSE). © 2026 Tom (TomPlaysNow).
+Programmcode: [MIT](LICENSE), © 2026 Tom (TomPlaysNow).
+App-Icon: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), siehe
+[ICON-LICENSE.md](resources/ICON-LICENSE.md).
 
-Das von TomPlaysNow erstellte App-Icon (`resources/icon.svg`, `resources/icon.png` und
-`resources/icon.icns`) steht unter [Creative Commons Namensnennung 4.0 International
-(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). © 2026 Tom (TomPlaysNow).
-Weitere Angaben stehen in [resources/ICON-LICENSE.md](resources/ICON-LICENSE.md).
-
-Die Lizenztexte der gebündelten Fremdkomponenten werden beim Bauen automatisch
-gesammelt und zusammen mit den Electron-/Chromium-Lizenzen in
-`Thomnail.app/Contents/Resources/` abgelegt. Im Finder erreichst du sie über
-Rechtsklick auf die App → **Paketinhalt zeigen** → `Contents/Resources`.
-FFmpeg und ffprobe werden separat installiert und nicht mitgeliefert.
+Der Build sammelt vollständige Lizenz-/Hinweisdateien der npm-Produktionsabhängigkeiten
+und der aufgelösten Rust-Abhängigkeiten einschließlich Build-Werkzeugen und
+Rust-Runtime. Sie liegen in `Thomnail.app/Contents/Resources/licenses/`.
+Die Rust-Hinweise enthalten Links zu den unveränderten Quellpaketen. Einige Crates
+liefern ihre Lizenztexte nicht im Crate-Archiv mit; für die gesperrten Versionen
+liegen deshalb Texte aus den jeweiligen Quell-Repositories unter
+`resources/license-overrides/`, mit Herkunftsnachweisen in `sources.json`.
+Fehlt ein vollständiger Lizenztext, bricht der Release-Build ab.
+FFmpeg und ffprobe werden weiterhin separat installiert und nicht mitgeliefert.

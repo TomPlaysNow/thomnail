@@ -309,3 +309,10 @@ body {
   gap: 8px;
 }
 
+
+button:disabled { opacity: 0.5; cursor: default; }
+.dropzone { background: transparent; color: inherit; font: inherit; width: 100%; }
+.dropzone-hover { border-color: #cba6f7; background: #313244; }
+.app-footer { margin-top: auto; text-align: center; font-size: 0.7rem; color: #a6adc8; }
+.file-list { min-height: 80px; }
+button:focus-visible { outline: 2px solid #b4befe; outline-offset: 3px; }

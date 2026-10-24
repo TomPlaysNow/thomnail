@@ -1,6 +1,5 @@
-import React from 'react';
 
-export default function Progress({ done, total, running }) {
+export default function Progress({ done, total, running }: { done: number; total: number; running: boolean }) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
   return (

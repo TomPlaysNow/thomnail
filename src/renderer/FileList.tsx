@@ -1,6 +1,6 @@
-import React from 'react';
+import type { FileProgress, FileStatus } from '../types';
 
-const STATUS_LABEL = {
+const STATUS_LABEL: Record<FileStatus, string> = {
   pending: 'Wartend',
   processing: 'Verarbeite...',
   done: 'Fertig',
@@ -8,7 +8,7 @@ const STATUS_LABEL = {
   error: 'Fehler',
 };
 
-const STATUS_CLASS = {
+const STATUS_CLASS: Record<FileStatus, string> = {
   pending: 'status-pending',
   processing: 'status-processing',
   done: 'status-done',
@@ -16,7 +16,7 @@ const STATUS_CLASS = {
   error: 'status-error',
 };
 
-export default function FileList({ files }) {
+export default function FileList({ files }: { files: FileProgress[] }) {
   return (
     <div className="file-list">
       {files.map((f) => (

@@ -90,3 +90,10 @@ typings/
 
 # Electron-Forge
 out/
+
+# Tauri / Rust
+dist/
+src-tauri/target/
+src-tauri/gen/
+src-tauri/binaries/swift-helper
+build/licenses/

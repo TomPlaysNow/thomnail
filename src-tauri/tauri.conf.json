@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Thomnail",
+  "version": "1.4.0",
+  "identifier": "io.github.tomplaysnow.thomnail",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://127.0.0.1:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{ "label": "main", "title": "Thomnail", "width": 900, "height": 650, "minWidth": 600, "minHeight": 550 }],
+    "security": { "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost" }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Utility",
+    "shortDescription": "Video-Thumbnails als Datei-Icons",
+    "copyright": "© 2026 TomPlaysNow",
+    "license": "MIT",
+    "icon": ["../resources/icon.png", "../resources/icon.icns"],
+    "resources": { "../build/licenses/": "licenses/", "../LICENSE": "LICENSE.thomnail.txt", "../resources/ICON-LICENSE.md": "ICON-LICENSE.md" }
+  }
+}
