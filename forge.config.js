@@ -4,7 +4,7 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
-    appBundleId: 'com.thomforge.thomnail',
+    appBundleId: 'io.github.tomplaysnow.thomnail',
     icon: 'resources/icon',
     extraResource: ['resources/swift-helper'],
   },

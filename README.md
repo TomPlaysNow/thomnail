@@ -1,6 +1,6 @@
 # Thomnail
 
-Thomnail ist eine macOS-App von **Thomforge**, die aus jedem Video in einem Ordner einen Frame herausnimmt und ihn als **Finder-Icon** der Videodatei setzt. Im Finder siehst du dann statt des generischen Dateisymbols sofort, was im Video steckt – auch in Ordnern, Spotlight und auf externen Laufwerken, wo macOS selbst keine Vorschau erzeugt.
+Thomnail ist eine macOS-App von **Tom**, die aus jedem Video in einem Ordner einen Frame herausnimmt und ihn als **Finder-Icon** der Videodatei setzt. Im Finder siehst du dann statt des generischen Dateisymbols sofort, was im Video steckt – auch in Ordnern, Spotlight und auf externen Laufwerken, wo macOS selbst keine Vorschau erzeugt.
 
 Aktuelle Version: **1.2.0**
 
@@ -162,8 +162,8 @@ resources/swift-helper /pfad/zum/video.mp4 /pfad/zum/bild.png
 
 ### 1.2.0
 
-- Neuer Name: **Thomnail** (vorher VideoThumb), Teil der Marke Thomforge
-- Bundle-ID `com.thomforge.thomnail`
+- Neuer Name: **Thomnail** (vorher VideoThumb)
+- Bundle-ID `io.github.tomplaysnow.thomnail`
 - Einstellungen aus VideoThumb werden automatisch übernommen
 
 ### 1.1.0
@@ -182,4 +182,9 @@ resources/swift-helper /pfad/zum/video.mp4 /pfad/zum/bild.png
 
 ## Lizenz
 
-MIT © 2026 Tom
+Der Programmcode steht unter der [MIT-Lizenz](LICENSE). © 2026 Tom.
+
+Das von Tom erstellte App-Icon (`resources/icon.svg`, `resources/icon.png` und
+`resources/icon.icns`) steht unter [Creative Commons Namensnennung 4.0 International
+(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). © 2026 Tom.
+Weitere Angaben stehen in [resources/ICON-LICENSE.md](resources/ICON-LICENSE.md).
