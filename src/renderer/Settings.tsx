@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { api, errorMessage } from '../api';
 import type { Settings as SettingsData } from '../types';
 
-export default function Settings({ onClose, onSaved }: { onClose: () => void; onSaved: (settings: SettingsData) => void }) {
+export default function Settings({ onClose }: { onClose: () => void }) {
   const [settings, setSettings] = useState<SettingsData | null>(null);
 
   const [error, setError] = useState('');
@@ -20,7 +20,11 @@ export default function Settings({ onClose, onSaved }: { onClose: () => void; on
     if (!settings || saving) return;
     setSaving(true);
     try {
-      onSaved(await api.setSettings(settings));
+      await api.setSettings({
+        ffmpegPath: settings.ffmpegPath,
+        recursive: settings.recursive,
+        skipProcessed: settings.skipProcessed,
+      });
       onClose();
     } catch (e) { setError(errorMessage(e)); }
     finally { setSaving(false); }
@@ -41,20 +45,6 @@ export default function Settings({ onClose, onSaved }: { onClose: () => void; on
             value={settings.ffmpegPath}
             onChange={(e) => handleChange('ffmpegPath', e.target.value)}
           />
-        </label>
-
-        <label>
-          Frame-Position
-          <div className="range-row">
-            <input
-              type="range"
-              min="1"
-              max="99"
-              value={parseInt(settings.framePosition)}
-              onChange={(e) => handleChange('framePosition', `${e.target.value}%`)}
-            />
-            <span>{settings.framePosition}</span>
-          </div>
         </label>
 
         <label className="checkbox-label">

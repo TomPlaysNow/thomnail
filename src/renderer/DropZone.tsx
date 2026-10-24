@@ -23,9 +23,9 @@ export default function DropZone({ folderPath, disabled, onSelect, onDrop }: Pro
   }, [disabled, onDrop]);
 
   return (
-    <button type="button" className={`dropzone ${hover ? 'dropzone-hover' : ''}`} onClick={onSelect} disabled={disabled}>
+    <button type="button" className={`dropzone ${hover ? 'dropzone-hover' : ''}`} onClick={onSelect} disabled={disabled} title={folderPath || undefined}>
       <span className={folderPath ? 'dropzone-selected' : 'dropzone-empty'}>
-        <span className="dropzone-icon">{folderPath ? '📁' : '📂'}</span>
+        <span className="dropzone-icon" aria-hidden="true">{folderPath ? '📁' : '📂'}</span>
         <span className={folderPath ? 'dropzone-path' : 'dropzone-label'}>{folderPath || 'Ordner hierher ziehen'}</span>
         <span className="dropzone-hint">{folderPath ? 'Klicken oder neuen Ordner ablegen' : 'oder klicken zum Auswählen'}</span>
         {error && <span className="dropzone-hint">{error}</span>}

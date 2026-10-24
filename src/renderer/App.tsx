@@ -89,13 +89,12 @@ export default function App() {
           catch (e) { setError(errorMessage(e)); }
         }} title="Einstellungen" aria-label="Einstellungen">⚙</button>
       </header>
-      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} onSaved={(settings) => setFramePosition(parseInt(settings.framePosition, 10))} />}
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
       {info && !info.supportsIcons && <div className="summary partial">Das Setzen von Datei-Icons ist bisher nur für macOS verfügbar. Windows und Linux sind in Vorbereitung.</div>}
       <DropZone folderPath={folderPath} onSelect={handleSelectFolder} onDrop={handleDropFolder} disabled={running} />
       <div className="timepicker-row">
-        <label htmlFor="frame-position" className="timepicker-label">Zeitpunkt</label>
-        <input id="frame-position" type="range" min="1" max="99" value={framePosition} onChange={(e) => handleFrameChange(Number(e.target.value))} disabled={running || !info} className="timepicker-slider" />
-        <span className="timepicker-value">{framePosition}%</span>
+        <label htmlFor="frame-position" className="timepicker-label">Frame bei <span className="timepicker-value">{framePosition} %</span></label>
+        <input id="frame-position" type="range" min="1" max="99" value={framePosition} aria-valuetext={`${framePosition} Prozent der Videolänge`} title="Position des Vorschaubilds innerhalb jedes Videos" onChange={(e) => handleFrameChange(Number(e.target.value))} disabled={running || !info} className="timepicker-slider" />
       </div>
       {folderPath && !running && <button className="btn-primary" onClick={handleStart} disabled={!info?.supportsIcons}>Icons setzen</button>}
       {error && <div className="summary partial" role="alert">{error}</div>}
