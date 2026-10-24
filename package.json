@@ -1,7 +1,7 @@
 {
   "name": "videothumb",
   "productName": "videothumb",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Setzt Video-Frames als Finder-Icons für Videodateien (macOS)",
   "main": ".webpack/main",
   "private": true,

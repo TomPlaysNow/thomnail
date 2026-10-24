@@ -28,8 +28,35 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+function setupAboutPanel() {
+  const v = process.versions;
+  app.setAboutPanelOptions({
+    applicationName: 'VideoThumb',
+    applicationVersion: app.getVersion(),
+    version: `${process.arch}`,
+    copyright: '© 2026 Tom · MIT-Lizenz',
+    credits: [
+      'Setzt einen Frame aus jedem Video als Finder-Icon der Datei.',
+      '',
+      'Funktionen:',
+      '• Ordner wählen oder per Drag & Drop ablegen',
+      '• Zeitpunkt des Frames frei wählbar (1–99 %)',
+      '• Optional rekursiv durch Unterordner',
+      '• Bereits verarbeitete Dateien überspringen',
+      '',
+      'Formate: MP4, MOV, MKV, AVI',
+      'Benötigt: macOS, ffmpeg (Homebrew oder MacPorts)',
+      '',
+      `Electron ${v.electron} · Chromium ${v.chrome} · Node ${v.node}`,
+      '',
+      'github.com/TomPlaysNow/videothumb',
+    ].join('\n'),
+  });
+}
+
 app.whenReady().then(() => {
   setupIPC();
+  setupAboutPanel();
   createWindow();
 
   // On OS X it's common to re-create a window in the app when the
