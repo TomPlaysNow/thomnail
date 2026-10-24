@@ -69,9 +69,37 @@ pub fn checked_output(command: &mut Command, name: &str) -> Result<Output, Strin
     Ok(output)
 }
 
+/// Leads with an explanation for users and keeps the tool output for diagnosis.
+pub fn explained(explanation: &str) -> impl FnOnce(String) -> String + '_ {
+    move |details| format!("{explanation}\n\nDetails: {details}")
+}
+
+const FFMPEG_LOCATIONS: [&str; 3] = [
+    "/opt/homebrew/bin/ffmpeg",
+    "/usr/local/bin/ffmpeg",
+    "/opt/local/bin/ffmpeg",
+];
+
+/// Resolved on every run, so an FFmpeg installed after the first launch is found.
+fn find_ffmpeg() -> PathBuf {
+    let name = if cfg!(windows) { "ffmpeg.exe" } else { "ffmpeg" };
+    // Apps started from Finder only get a minimal PATH, so known locations come first.
+    let on_path = std::env::var_os("PATH")
+        .map(|paths| std::env::split_paths(&paths).collect::<Vec<_>>())
+        .unwrap_or_default()
+        .into_iter()
+        .map(|directory| directory.join(name));
+    FFMPEG_LOCATIONS
+        .iter()
+        .map(PathBuf::from)
+        .chain(on_path)
+        .find(|path| path.is_file())
+        .unwrap_or_else(|| PathBuf::from(name))
+}
+
 pub fn executables(settings: &Settings) -> (PathBuf, PathBuf) {
-    let ffmpeg = if settings.ffmpeg_path.is_empty() {
-        PathBuf::from("ffmpeg")
+    let ffmpeg = if settings.ffmpeg_path.trim().is_empty() {
+        find_ffmpeg()
     } else {
         PathBuf::from(&settings.ffmpeg_path)
     };
@@ -88,6 +116,23 @@ pub fn executables(settings: &Settings) -> (PathBuf, PathBuf) {
     (ffmpeg, ffprobe)
 }
 
+/// Checked once before a run instead of failing every file with the same message.
+pub fn check_tools(settings: &Settings) -> Result<(), String> {
+    let (ffmpeg, ffprobe) = executables(settings);
+    // The tried path is the most useful detail when FFmpeg is missing.
+    checked_output(command(&ffmpeg).arg("-version"), &ffmpeg.display().to_string()).map_err(explained(
+        "FFmpeg wurde nicht gefunden oder lässt sich nicht starten. Bitte FFmpeg installieren \
+         (etwa mit „brew install ffmpeg“) oder den Pfad in den Einstellungen eintragen.",
+    ))?;
+    checked_output(command(&ffprobe).arg("-version"), &ffprobe.display().to_string()).map_err(explained(
+        "ffprobe wurde nicht gefunden. Es gehört zu FFmpeg und wird im selben Ordner wie ffmpeg erwartet.",
+    ))?;
+    Ok(())
+}
+
+const UNREADABLE: &str =
+    "Vorschaubild konnte nicht erstellt werden. Die Datei ist beschädigt oder enthält kein lesbares Video.";
+
 pub fn extract_frame(video: &Path, image: &Path, settings: &Settings) -> Result<(), String> {
     let (ffmpeg, ffprobe) = executables(settings);
     let metadata = checked_output(
@@ -102,20 +147,35 @@ pub fn extract_frame(video: &Path, image: &Path, settings: &Settings) -> Result<
             ])
             .arg(video),
         "ffprobe",
-    )?;
+    )
+    .map_err(explained(UNREADABLE))?;
     let metadata: serde_json::Value = serde_json::from_slice(&metadata.stdout)
-        .map_err(|e| format!("Ungültige Videodaten: {e}"))?;
+        .map_err(|e| explained(UNREADABLE)(e.to_string()))?;
     let duration = metadata["format"]["duration"]
         .as_str()
         .and_then(|value| value.parse::<f64>().ok())
         .filter(|value| value.is_finite() && *value > 0.0)
-        .ok_or("Videolänge konnte nicht ermittelt werden.")?;
+        .ok_or("Die Videolänge konnte nicht ermittelt werden. Die Datei ist möglicherweise unvollständig.")?;
     let seek = (duration * frame_percentage(&settings.frame_position)?).to_string();
-    checked_output(command(ffmpeg).args(["-nostdin", "-hide_banner", "-loglevel", "error", "-y", "-ss", &seek, "-i"])
-        .arg(video).args(["-frames:v", "1", "-vf", "scale=320:320:force_original_aspect_ratio=decrease,pad=320:320:(ow-iw)/2:(oh-ih)/2:color=black"])
-        .arg(image), "ffmpeg")?;
+    checked_output(
+        command(ffmpeg)
+            .args(["-nostdin", "-hide_banner", "-loglevel", "error", "-y", "-ss", &seek, "-i"])
+            .arg(video)
+            .args([
+                "-frames:v",
+                "1",
+                "-vf",
+                // Transparent padding keeps the video's own shape in Finder.
+                "scale=512:512:force_original_aspect_ratio=decrease,format=rgba,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=black@0",
+            ])
+            .arg(image),
+        "ffmpeg",
+    )
+    .map_err(explained(
+        "Vorschaubild konnte nicht erstellt werden. An der gewählten Stelle ließ sich kein Bild lesen.",
+    ))?;
     if !image.is_file() {
-        return Err("FFmpeg hat kein Vorschaubild erzeugt.".into());
+        return Err("Vorschaubild konnte nicht erstellt werden. FFmpeg hat kein Bild geliefert.".into());
     }
     Ok(())
 }
@@ -152,6 +212,24 @@ mod tests {
         );
     }
     #[test]
+    fn missing_ffmpeg_is_reported_once_with_guidance() {
+        let error = check_tools(&Settings {
+            ffmpeg_path: "/missing/ffmpeg".into(),
+            ..Settings::default()
+        })
+        .unwrap_err();
+        assert!(error.starts_with("FFmpeg wurde nicht gefunden"), "{error}");
+        assert!(error.contains("Einstellungen") && error.contains("/missing/ffmpeg"), "{error}");
+    }
+    #[test]
+    fn empty_path_resolves_to_installed_ffmpeg_or_bare_name() {
+        let (ffmpeg, _) = executables(&Settings {
+            ffmpeg_path: " ".into(),
+            ..Settings::default()
+        });
+        assert!(ffmpeg.is_file() || ffmpeg.as_os_str() == "ffmpeg", "{}", ffmpeg.display());
+    }
+    #[test]
     #[ignore = "requires locally installed FFmpeg and ffprobe; run with --ignored"]
     fn real_ffmpeg_extracts_letterboxed_frame_from_path_with_spaces() {
         let root = tempfile::tempdir().unwrap();
@@ -186,8 +264,10 @@ mod tests {
         .unwrap();
         let png = std::fs::read(image).unwrap();
         assert_eq!(&png[0..8], b"\x89PNG\r\n\x1a\n");
-        assert_eq!(u32::from_be_bytes(png[16..20].try_into().unwrap()), 320);
-        assert_eq!(u32::from_be_bytes(png[20..24].try_into().unwrap()), 320);
+        assert_eq!(u32::from_be_bytes(png[16..20].try_into().unwrap()), 512);
+        assert_eq!(u32::from_be_bytes(png[20..24].try_into().unwrap()), 512);
+        // PNG colour type 6: RGBA, so the padding can be transparent.
+        assert_eq!(png[25], 6);
         // Missing binaries and invalid video files must report failures.
         assert!(extract_frame(
             &video,
@@ -199,6 +279,7 @@ mod tests {
         )
         .is_err());
         std::fs::write(&video, b"not a video").unwrap();
-        assert!(extract_frame(&video, &root.path().join("bad.png"), &Settings::default()).is_err());
+        let error = extract_frame(&video, &root.path().join("bad.png"), &Settings::default()).unwrap_err();
+        assert!(error.starts_with(UNREADABLE) && error.contains("Details:"), "{error}");
     }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "thomnail"
-version = "1.4.0"
+version = "1.5.0"
 description = "Video-Thumbnails als Datei-Icons"
 authors = ["TomPlaysNow"]
 license = "MIT"

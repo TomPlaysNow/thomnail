@@ -43,6 +43,7 @@ export default function Settings({ onClose }: { onClose: () => void }) {
           <input
             type="text"
             value={settings.ffmpegPath}
+            placeholder="Automatisch (Homebrew, MacPorts, PATH)"
             onChange={(e) => handleChange('ffmpegPath', e.target.value)}
           />
         </label>

@@ -254,6 +254,7 @@ body {
 
 .summary.success { background: #20382a; color: #94c9a1; }
 .summary.partial  { background: #3b2523; color: var(--error); }
+.summary.neutral  { background: var(--surface-raised); color: var(--text-muted); border: 1px solid var(--panel-border); }
 
 /* Timepicker-Row – direkt in der Hauptansicht */
 .timepicker-row {

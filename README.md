@@ -3,7 +3,7 @@
 <img src="resources/icon.png" alt="Thomnail-App-Icon im Aurora-Design: Videobild über einem Filmstreifen" width="128" height="128">
 
 Thomnail von **TomPlaysNow** setzt einen Video-Frame als Finder-Icon einer Videodatei.
-Version **1.4.0** verwendet **Tauri 2, Rust und React/TypeScript**. Die App nutzt die
+Version **1.5.0** verwendet **Tauri 2, Rust und React/TypeScript**. Die App nutzt die
 vorhandene System-WebView und liefert keinen eigenen Chromium-/Node.js-Unterbau mehr mit.
 
 ## Funktionen
@@ -11,8 +11,9 @@ vorhandene System-WebView und liefert keinen eigenen Chromium-/Node.js-Unterbau 
 - Ordner per Dialog oder Drag & Drop auswählen
 - Frame-Position zwischen 1 und 99 % wählen (Standard: 50 %)
 - Optional Unterordner verarbeiten und Dateien mit eigenem Finder-Icon überspringen
-- Fortschritt, Dateifehler und Zusammenfassung anzeigen
-- Hoch- und Querformat unverzerrt in 320 × 320 Pixel einpassen
+- Fortschritt, verständliche Dateifehler mit technischen Details und Zusammenfassung anzeigen
+- Hoch- und Querformat unverzerrt in 512 × 512 Pixel einpassen; der Rand bleibt
+  transparent, sodass das Icon die Form des Videos behält
 - Einstellungen speichern; vorhandene Electron-/VideoThumb-Einstellungen übernehmen
 
 Formate: `.mp4`, `.mov`, `.mkv`, `.avi`.
@@ -60,10 +61,15 @@ Zum Bauen zusätzlich:
 - Rust 1.90 oder neuer mit Cargo; empfohlen wird eine aktuelle stabile Toolchain
 - Xcode Command Line Tools (`xcode-select --install`)
 
-Thomnail sucht FFmpeg unter `/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin`
-und anschließend im `PATH`. In den Einstellungen kann ein eigener Pfad stehen.
-`ffprobe` muss neben dem ausgewählten `ffmpeg` liegen. Beide werden ohne Shell und
-mit getrennten Argumenten gestartet; Dateipfade mit Leerzeichen werden unterstützt.
+Ist in den Einstellungen kein Pfad eingetragen, sucht Thomnail FFmpeg bei jeder
+Verarbeitung unter `/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin` und
+anschließend im `PATH`. Ein nach dem ersten Start installiertes FFmpeg wird so
+ebenfalls gefunden. Ein eingetragener Pfad hat Vorrang; leert man das Feld, gilt
+wieder die automatische Suche. `ffprobe` muss neben dem verwendeten `ffmpeg` liegen.
+Vor der ersten Datei prüft Thomnail, ob ffmpeg, ffprobe und der Swift-Helfer
+startbar sind, und meldet ein Problem einmal mit dem versuchten Pfad. Beide
+Programme werden ohne Shell und mit getrennten Argumenten gestartet; Dateipfade
+mit Leerzeichen werden unterstützt.
 
 ## Bauen und starten
 
@@ -90,7 +96,7 @@ Für ein ZIP zum Weitergeben:
 npm run make
 ```
 
-Ergebnis: `out/tauri/Thomnail-darwin-<arch>-1.4.0.zip`.
+Ergebnis: `out/tauri/Thomnail-darwin-<arch>-1.5.0.zip`.
 Die früheren Electron-Builds unter `out/Thomnail-darwin-arm64` werden nicht verändert.
 
 Die lokale App ist ad-hoc signiert. Eine Apple Developer-ID-Signierung und
@@ -111,6 +117,9 @@ Application-Support-Ordner übernommen. Die bisherigen Dateien bleiben erhalten.
 Änderungen werden atomar gespeichert; die laufende Verarbeitung nutzt einen festen
 Schnappschuss der Einstellungen.
 
+Bereits gesetzte Icons werden nur neu erzeugt, wenn „Bereits verarbeitete Dateien
+überspringen“ ausgeschaltet ist, etwa um ältere Icons auf 512 Pixel zu bringen.
+
 Ein Icon entfernen: Datei im Finder auswählen → `⌘ I` → das kleine Icon oben links
 anklicken → `⌫`.
 
@@ -119,8 +128,9 @@ anklicken → `⌫`.
 ```text
 React/TypeScript → Tauri-Kommandos → Rust
                                     ├─ Videos suchen
+                                    ├─ ffmpeg, ffprobe und Helfer einmal prüfen
                                     ├─ ffprobe: Videolänge ermitteln
-                                    ├─ ffmpeg: Frame als PNG erzeugen
+                                    ├─ ffmpeg: Frame als transparentes PNG erzeugen
                                     ├─ Plattform-Modul: Finder-Icon setzen
                                     └─ temporäre Bilder aufräumen
 ```
@@ -174,7 +184,7 @@ Die Icon-Lizenz und die Aurora-Anpassung sind in
 ```bash
 npm run check
 npm test
-cargo test --manifest-path src-tauri/Cargo.toml -- --ignored
+cargo test --manifest-path src-tauri/Cargo.toml -- --include-ignored
 cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 ```
 
@@ -185,8 +195,16 @@ Dateien. Geprüft werden reale Frame-Extraktion, Finder-Icons, unveränderte Vid
 
 ## Änderungen
 
-### Aktueller Stand auf Basis von 1.4.0
+### 1.5.0
 
+- FFmpeg wird bei leerem Pfad bei jeder Verarbeitung gesucht, auch wenn es erst
+  nach dem ersten Start installiert wurde
+- Fehlendes ffmpeg, ffprobe oder ein fehlender Helfer wird einmal vor der ersten
+  Datei gemeldet, mit Installationshinweis und versuchtem Pfad
+- Verständliche deutsche Fehlermeldungen pro Datei; die technische Ausgabe steht
+  unter „Details“
+- Icons in 512 × 512 Pixeln mit transparentem Rand statt 320 Pixeln mit schwarzen Balken
+- „Keine Videos gefunden“ erscheint als neutraler Hinweis statt als Erfolg
 - Aurora-Oberfläche und dazu passendes App-Icon in Nachtblau und Cyan
 - Verständlichere Frame-Beschriftung und ein einziger Regler in der Hauptansicht
 - Bessere Lesbarkeit und vollständig zugängliche Pfade und Fehlerdetails

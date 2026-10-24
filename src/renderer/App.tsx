@@ -100,7 +100,7 @@ export default function App() {
       {error && <div className="summary partial" role="alert">{error}</div>}
       {(running || files.length > 0) && <Progress done={completed} total={files.length} running={running} />}
       {files.length > 0 && <FileList files={files} />}
-      {summary && <div className={`summary ${summary.success + summary.skipped === summary.total ? 'success' : 'partial'}`}>
+      {summary && <div className={`summary ${summary.total === 0 ? 'neutral' : summary.success + summary.skipped === summary.total ? 'success' : 'partial'}`}>
         {summary.total === 0 ? 'Keine Videos gefunden.' : `${summary.success} von ${summary.total} erfolgreich verarbeitet` + (summary.skipped > 0 ? `, ${summary.skipped} übersprungen.` : '.')}
       </div>}
       {info && <footer className="app-footer">Thomnail {info.version} · {info.platform} · TomPlaysNow</footer>}

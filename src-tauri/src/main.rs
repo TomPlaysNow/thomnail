@@ -29,7 +29,7 @@ struct FileProgress {
     #[serde(skip_serializing_if = "Option::is_none")]
     message: Option<String>,
 }
-#[derive(Debug, Serialize)]
+#[derive(Debug, Default, Serialize)]
 struct Summary {
     success: usize,
     skipped: usize,
@@ -44,6 +44,13 @@ fn process(
 ) -> Result<Summary, String> {
     platform::ensure_supported()?;
     let files = video::video_files(folder, settings.recursive)?;
+    if files.is_empty() {
+        return Ok(Summary::default());
+    }
+    video::check_tools(settings)?;
+    if !helper.is_file() {
+        return Err("Der Finder-Icon-Helfer fehlt im App-Paket. Bitte Thomnail neu installieren.".into());
+    }
     let progress = |path: &Path, status, message| {
         send(FileProgress {
             file: path
@@ -201,6 +208,23 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    #[cfg(target_os = "macos")]
+    fn missing_ffmpeg_stops_before_any_file_is_touched() {
+        let directory = tempfile::tempdir().unwrap();
+        std::fs::write(directory.path().join("clip.mp4"), b"").unwrap();
+        let settings = Settings {
+            ffmpeg_path: "/missing/ffmpeg".into(),
+            ..Settings::default()
+        };
+        let events = Mutex::new(Vec::new());
+        let error = process(directory.path(), &settings, Path::new("/missing/helper"), |event| {
+            events.lock().unwrap().push(event.status)
+        })
+        .unwrap_err();
+        assert!(error.starts_with("FFmpeg wurde nicht gefunden"), "{error}");
+        assert!(events.lock().unwrap().is_empty());
+    }
     #[test]
     #[cfg(target_os = "macos")]
     #[ignore = "end-to-end processing requires FFmpeg and the Swift helper"]

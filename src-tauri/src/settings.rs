@@ -12,18 +12,9 @@ pub struct Settings {
 
 impl Default for Settings {
     fn default() -> Self {
-        let ffmpeg_path = [
-            "/opt/homebrew/bin/ffmpeg",
-            "/usr/local/bin/ffmpeg",
-            "/opt/local/bin/ffmpeg",
-        ]
-        .iter()
-        .find(|path| Path::new(path).is_file())
-        .copied()
-        .unwrap_or("")
-        .into();
         Self {
-            ffmpeg_path,
+            // Empty means FFmpeg is located on every run, see video::executables.
+            ffmpeg_path: String::new(),
             frame_position: "50%".into(),
             recursive: false,
             skip_processed: false,
