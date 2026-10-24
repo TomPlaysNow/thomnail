@@ -1,4 +1,4 @@
-const { ipcMain, dialog, app } = require('electron');
+const { ipcMain, dialog, app, BrowserWindow } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { execFile } = require('child_process');
@@ -35,15 +35,22 @@ function setIconViaHelper(videoPath, thumbPath) {
   });
 }
 
-function setupIPC(mainWindow) {
-  ipcMain.handle('dialog:openFolder', async () => {
-    const result = await dialog.showOpenDialog(mainWindow, {
+// Registered once per app lifetime; the window is resolved per request,
+// because macOS re-creates windows on 'activate'.
+function setupIPC() {
+  ipcMain.handle('dialog:openFolder', async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const result = await dialog.showOpenDialog(win, {
       properties: ['openDirectory'],
     });
     return result.canceled ? null : result.filePaths[0];
   });
 
   ipcMain.handle('process:start', async (event, folderPath) => {
+    const sender = event.sender;
+    const send = (data) => {
+      if (!sender.isDestroyed()) sender.send('process:progress', data);
+    };
     const files = getVideoFiles(folderPath, settings.recursive);
 
     if (files.length === 0) {
@@ -52,7 +59,7 @@ function setupIPC(mainWindow) {
 
     // Notify renderer of all files first
     for (const filePath of files) {
-      mainWindow.webContents.send('process:progress', {
+      send({
         file: path.basename(filePath),
         filePath,
         status: 'pending',
@@ -62,7 +69,7 @@ function setupIPC(mainWindow) {
     let success = 0;
 
     for (const filePath of files) {
-      mainWindow.webContents.send('process:progress', {
+      send({
         file: path.basename(filePath),
         filePath,
         status: 'processing',
@@ -73,13 +80,13 @@ function setupIPC(mainWindow) {
         thumbPath = await extractFrame(filePath, settings.ffmpegPath, settings.framePosition);
         await setIconViaHelper(filePath, thumbPath);
         success++;
-        mainWindow.webContents.send('process:progress', {
+        send({
           file: path.basename(filePath),
           filePath,
           status: 'done',
         });
       } catch (err) {
-        mainWindow.webContents.send('process:progress', {
+        send({
           file: path.basename(filePath),
           filePath,
           status: 'error',
