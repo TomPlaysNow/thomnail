@@ -9,6 +9,21 @@ module.exports = {
     extraResource: ['resources/swift-helper'],
   },
   rebuildConfig: {},
+  hooks: {
+    // Ohne Developer-ID ist die Ad-hoc-Signatur nach dem Packen ungültig
+    // (Info.plist geändert) – daher am Ende neu ad-hoc signieren.
+    postPackage: async (_config, { platform, outputPaths }) => {
+      if (platform !== 'darwin') return;
+      const { execFileSync } = require('child_process');
+      const fs = require('fs');
+      const path = require('path');
+      for (const dir of outputPaths) {
+        for (const entry of fs.readdirSync(dir).filter((f) => f.endsWith('.app'))) {
+          execFileSync('codesign', ['--force', '--deep', '--sign', '-', path.join(dir, entry)]);
+        }
+      }
+    },
+  },
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
