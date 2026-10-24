@@ -1,6 +1,6 @@
 # Thomnail
 
-<img src="resources/icon.png" alt="Thomnail-App-Icon im Aurora-Design: Videobild über einem Filmstreifen" width="128" height="128">
+<img src="resources/icon.png" alt="Thomnail app icon in the Aurora design: a video frame above a film strip" width="128" height="128">
 
 **Set a chosen video frame as the Finder icon for whole folders of videos.**
 Handy for video editors and anyone keeping video archives on a Mac.
@@ -9,219 +9,141 @@ Handy for video editors and anyone keeping video archives on a Mac.
 
 <img src="docs/images/finder-icons.png" alt="Video files whose Finder icons show a frame from each video, in landscape and portrait shape" width="600">
 
-## In English
-
 Thomnail is a small macOS app by **TomPlaysNow**. Choose or drop a folder, pick the
-position of the frame (1–99 % of each video, default 50 %) and click **Set icons**.
-Thomnail extracts that frame with FFmpeg and sets it as the file's Finder icon. The
-video data itself stays unchanged.
+position of the frame and click **Set icons**. Thomnail extracts that frame from every
+video with FFmpeg and sets it as the file's Finder icon. The video data itself stays
+unchanged.
 
-- Whole folders at once, optionally including subfolders; files that already have a
-  custom icon can be skipped
+Version **1.6.0** is built with **Tauri 2, Rust and React/TypeScript**. It uses the
+system WebView and does not bundle Chromium or Node.js.
+
+## Features
+
+- Choose a folder in a dialog or by drag and drop
+- Pick the frame position between 1 and 99 % of each video (default: 50 %)
+- Optionally include subfolders and skip files that already have a custom icon
+- Progress, clear per-file error messages with technical details, and a summary
 - Sharp 512 × 512 icons with transparent padding, so landscape and portrait videos
   keep their shape
-- Formats: `.mp4`, `.mov`, `.mkv`, `.avi`
 - Interface in English, German, Chinese (Simplified), Hindi, Spanish and French;
-  it follows the system language by default
-- Requires macOS 11 or later and FFmpeg (`brew install ffmpeg`), which Thomnail finds
-  automatically
-- Built with Tauri 2, Rust and React/TypeScript; MIT licensed
+  follows the system language by default, otherwise English
+- Settings are saved; settings from earlier Electron/VideoThumb versions are migrated
 
-Download the ZIP from the [latest release](https://github.com/TomPlaysNow/thomnail/releases/latest).
-The app is ad-hoc signed, not notarized, so macOS blocks the first launch. Open
-**System Settings → Privacy & Security** and click **Open Anyway**, or run
-`xattr -dr com.apple.quarantine /Applications/Thomnail.app`.
-The rest of this README is in German.
+Formats: `.mp4`, `.mov`, `.mkv`, `.avi`.
 
-## Überblick
+## Installation
 
-Thomnail von **TomPlaysNow** setzt einen Video-Frame als Finder-Icon einer Videodatei.
-Version **1.6.0** verwendet **Tauri 2, Rust und React/TypeScript**. Die App nutzt die
-vorhandene System-WebView und liefert keinen eigenen Chromium-/Node.js-Unterbau mehr mit.
+1. Download the ZIP from the [latest release](https://github.com/TomPlaysNow/thomnail/releases/latest),
+   unzip it and move `Thomnail.app` to Applications.
+2. Install **FFmpeg** (includes ffprobe), for example with Homebrew
+   (`brew install ffmpeg`) or MacPorts (`sudo port install ffmpeg`).
+3. The app is ad-hoc signed, not notarized, so macOS blocks the first launch. Open
+   **System Settings → Privacy & Security** and click **Open Anyway**, or run
+   `xattr -dr com.apple.quarantine /Applications/Thomnail.app`.
 
-## Funktionen
+Requires macOS 11 or later. The release ZIP is built for Apple Silicon (arm64); on an
+Intel Mac, build the app yourself (see below).
 
-- Ordner per Dialog oder Drag & Drop auswählen
-- Frame-Position zwischen 1 und 99 % wählen (Standard: 50 %)
-- Optional Unterordner verarbeiten und Dateien mit eigenem Finder-Icon überspringen
-- Fortschritt, verständliche Dateifehler mit technischen Details und Zusammenfassung anzeigen
-- Hoch- und Querformat unverzerrt in 512 × 512 Pixel einpassen; der Rand bleibt
-  transparent, sodass das Icon die Form des Videos behält
-- Oberfläche auf Deutsch, Englisch, Chinesisch (vereinfacht), Hindi, Spanisch und
-  Französisch; standardmäßig in der Systemsprache, sonst Englisch
-- Einstellungen speichern; vorhandene Electron-/VideoThumb-Einstellungen übernehmen
+## Usage
 
-Formate: `.mp4`, `.mov`, `.mkv`, `.avi`.
+1. Choose a video folder or drag it into the window.
+2. Use **Frame at … %** to set where in each video the preview image is taken.
+3. Optionally open Settings (gear icon) for language, subfolders and skipping files
+   that already have an icon.
+4. Click **Set icons** and follow the progress.
 
-## Aurora-Design
+Existing icons are only regenerated when **Skip files that were already processed**
+is off, for example to upgrade older icons to 512 pixels.
 
-Oberfläche und App-Icon verwenden das Aurora-Design: Nachtblau, Cyan für Aktionen
-und Fokus sowie ein dezenter violetter Hintergrundverlauf. Das Icon behält das
-Motiv aus herausgezogenem Videobild und Filmstreifen bei.
+To remove an icon: select the file in Finder → `⌘ I` → click the small icon at the
+top left → `⌫`.
 
-Der Ablauf bleibt in einer Hauptansicht. Der Regler zeigt „Frame bei … %“ und ist
-ausschließlich dort verfügbar. Hellere Hilfstexte verbessern die Lesbarkeit;
-lange Ordnerpfade sind per Tooltip vollständig zugänglich. Meldungen in der
-Dateiliste lassen sich mit dem vollständigen Dateipfad aufklappen und kopieren.
-Buttons, Eingaben und aufklappbare Details haben sichtbare Tastaturfokusmarkierungen.
+### FFmpeg
 
-Die [Aurora-Designreferenz und Figma-Vorlage](docs/aurora-app-design.md) enthält
-die vollständige Spezifikation ohne lokale Dateipfadabhängigkeiten. Sie beschreibt
-auch Standards und Funktionsvorschläge für künftige Apps, die über die aktuelle
-Thomnail-Umsetzung hinausgehen.
+If no path is set in Settings, Thomnail looks for FFmpeg on every run in
+`/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin` and then on the `PATH`, so an
+FFmpeg installed after the first launch is found too. A path entered in Settings takes
+precedence; clear the field to return to automatic detection. `ffprobe` must be next to
+the `ffmpeg` in use.
 
-## Plattformen
+Before the first file, Thomnail checks that ffmpeg, ffprobe and the Swift helper can be
+started and reports a problem once, including the path it tried. Both tools are run
+without a shell and with separate arguments; paths with spaces are supported.
 
-**Die fertige Version unterstützt aktuell macOS.** Der Rust-Kern und die Oberfläche
-sind plattformübergreifend aufgebaut. Die macOS-Integration liegt getrennt in
-`src-tauri/src/platform/macos.rs`; der kleine Swift-Helfer nutzt `NSWorkspace.setIcon`.
+### Settings file
 
-Windows und Linux benötigen eine eigene Integration in Explorer bzw. den jeweiligen
-Dateimanager. Sie sind noch **keine fertigen Produktversionen**. Auf diesen Plattformen
-ist „Icons setzen“ deaktiviert und der Rust-Kern gibt eine klare Meldung zurück.
-Die gemeinsame Videosuche und Frame-Extraktion können wiederverwendet werden.
-Siehe [Plattformplanung](docs/platforms.md).
+Settings are stored in
+`~/Library/Application Support/io.github.tomplaysnow.thomnail/settings.json`.
+On first launch they are taken over from `Thomnail`, `thomnail` or `videothumb` in the
+same Application Support folder; the old files are kept. Changes are saved atomically,
+and a running job uses a fixed snapshot of the settings.
 
-## Voraussetzungen
+## How it works
 
-Für die Nutzung:
+```text
+React/TypeScript → Tauri commands → Rust
+                                   ├─ find videos
+                                   ├─ check ffmpeg, ffprobe and helper once
+                                   ├─ ffprobe: read the video length
+                                   ├─ ffmpeg: extract the frame as a transparent PNG
+                                   ├─ platform module: set the Finder icon
+                                   └─ clean up temporary images
+```
 
-- macOS 11 oder neuer; der lokal gebaute Release entspricht der Architektur des Macs
-- Separat installierte Programme **ffmpeg und ffprobe**, zum Beispiel über Homebrew
-  (`brew install ffmpeg`) oder MacPorts (`sudo port install ffmpeg`)
+The video data stays unchanged. The custom Finder icon is stored in macOS metadata
+(resource fork and FinderInfo); the `kHasCustomIcon` flag is used to detect files that
+were already processed. File systems and network shares must support this metadata,
+and it can be lost when files are copied.
 
-Zum Bauen zusätzlich:
+## Platforms
 
-- Node.js 22.12 oder neuer und npm
-- Rust 1.90 oder neuer mit Cargo; empfohlen wird eine aktuelle stabile Toolchain
+**The released version supports macOS.** The Rust core and the interface are
+cross-platform; the macOS integration lives separately in
+`src-tauri/src/platform/macos.rs`, and a small Swift helper calls
+`NSWorkspace.setIcon`.
+
+Windows and Linux need their own integration with Explorer or the respective file
+manager and are **not finished products yet**. On those platforms **Set icons** is
+disabled and the Rust core returns a clear message. Video scanning and frame
+extraction can be reused. See the [platform plan](docs/platforms.md) (German).
+
+## Building
+
+Requirements:
+
+- Node.js 22.12 or later and npm
+- Rust 1.90 or later with Cargo; a current stable toolchain is recommended
 - Xcode Command Line Tools (`xcode-select --install`)
-
-Ist in den Einstellungen kein Pfad eingetragen, sucht Thomnail FFmpeg bei jeder
-Verarbeitung unter `/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin` und
-anschließend im `PATH`. Ein nach dem ersten Start installiertes FFmpeg wird so
-ebenfalls gefunden. Ein eingetragener Pfad hat Vorrang; leert man das Feld, gilt
-wieder die automatische Suche. `ffprobe` muss neben dem verwendeten `ffmpeg` liegen.
-Vor der ersten Datei prüft Thomnail, ob ffmpeg, ffprobe und der Swift-Helfer
-startbar sind, und meldet ein Problem einmal mit dem versuchten Pfad. Beide
-Programme werden ohne Shell und mit getrennten Argumenten gestartet; Dateipfade
-mit Leerzeichen werden unterstützt.
-
-## Bauen und starten
 
 ```bash
 npm ci
 npm start
 ```
 
-Das startet Tauri mit dem Vite-Entwicklungsserver. Der Swift-Helfer wird auf macOS
-automatisch für die Zielarchitektur gebaut.
+This starts Tauri with the Vite dev server. On macOS the Swift helper is built
+automatically for the target architecture.
 
-Für eine fertige macOS-App:
+For a finished macOS app:
 
 ```bash
 npm run package
 ```
 
-Ergebnis: `src-tauri/target/release/bundle/macos/Thomnail.app`.
-Die App kann nach `/Applications` gezogen werden.
+Result: `src-tauri/target/release/bundle/macos/Thomnail.app`, which can be moved to
+`/Applications`.
 
-Für ein ZIP zum Weitergeben:
+For a ZIP to share:
 
 ```bash
 npm run make
 ```
 
-Ergebnis: `out/tauri/Thomnail-darwin-<arch>-1.6.0.zip`.
-Die früheren Electron-Builds unter `out/Thomnail-darwin-arm64` werden nicht verändert.
+Result: `out/tauri/Thomnail-darwin-<arch>-1.6.0.zip`.
 
-Die lokale App ist ad-hoc signiert. Eine Apple Developer-ID-Signierung und
-Notarisierung sind damit nicht verbunden. Für eine öffentliche, notarisiert
-verteilte Version muss das Signing separat eingerichtet werden.
+Local builds are ad-hoc signed. Developer ID signing and notarization for public
+distribution have to be set up separately.
 
-## Bedienung und Einstellungen
-
-1. Einen Video-Ordner auswählen oder in das Fenster ziehen.
-2. Unter „Frame bei … %“ die relative Position des Vorschaubilds in jedem Video festlegen.
-3. Optional über das Zahnrad Sprache, Unterordner und Überspringen vorhandener Icons einstellen.
-4. **Icons setzen** starten und den Fortschritt verfolgen.
-
-Die Einstellungen liegen unter macOS jetzt in
-`~/Library/Application Support/io.github.tomplaysnow.thomnail/settings.json`.
-Beim ersten Start werden sie aus `Thomnail`, `thomnail` oder `videothumb` im selben
-Application-Support-Ordner übernommen. Die bisherigen Dateien bleiben erhalten.
-Änderungen werden atomar gespeichert; die laufende Verarbeitung nutzt einen festen
-Schnappschuss der Einstellungen.
-
-Bereits gesetzte Icons werden nur neu erzeugt, wenn „Bereits verarbeitete Dateien
-überspringen“ ausgeschaltet ist, etwa um ältere Icons auf 512 Pixel zu bringen.
-
-Ein Icon entfernen: Datei im Finder auswählen → `⌘ I` → das kleine Icon oben links
-anklicken → `⌫`.
-
-## Verarbeitung
-
-```text
-React/TypeScript → Tauri-Kommandos → Rust
-                                    ├─ Videos suchen
-                                    ├─ ffmpeg, ffprobe und Helfer einmal prüfen
-                                    ├─ ffprobe: Videolänge ermitteln
-                                    ├─ ffmpeg: Frame als transparentes PNG erzeugen
-                                    ├─ Plattform-Modul: Finder-Icon setzen
-                                    └─ temporäre Bilder aufräumen
-```
-
-Die Videodaten bleiben unverändert. Das eigene Finder-Icon wird über macOS-Metadaten
-(Resource Fork und FinderInfo) gespeichert. Das Flag `kHasCustomIcon` dient zum
-Erkennen bereits verarbeiteter Dateien. Dateisysteme und Netzwerkfreigaben müssen
-diese Metadaten unterstützen; beim Kopieren können sie verloren gehen.
-
-## Projektstruktur
-
-```text
-src/
-  api.ts                  Tauri-Brücke und typisierte Ereignisse
-  types.ts                Gemeinsame Frontend-Typen
-  i18n.ts                 Alle Texte und Fehlermeldungen in sechs Sprachen
-  renderer.tsx            React-Einstieg
-  renderer/               Oberfläche
-src-tauri/
-  src/main.rs             App, Kommandos, Ablauf und Fortschritt
-  src/error.rs            Fehlercodes, die das Frontend übersetzt
-  src/settings.rs         Speicherung, Validierung und Migration
-  src/video.rs            Plattformübergreifende Videosuche und FFmpeg-Aufrufe
-  src/platform/           Dateimanager-Integration je Betriebssystem
-  build.rs                Baut den Swift-Helfer nur auf macOS
-  tauri.conf.json         Gemeinsame App-Konfiguration
-  tauri.macos.conf.json   macOS-Helfer und Signierung
-swift-helper/main.swift   Finder-Icon-Helfer
-build/                    Lizenzsammlung, Icon-Erzeugung und ZIP-Erstellung
-resources/                App-Icon und zusätzliche Lizenztexte
-docs/                     Designreferenz, Plattformplanung, Prüfberichte, Screenshots
-```
-
-Eine neue Sprache braucht einen Eintrag in `src/i18n.ts` (TypeScript meldet fehlende
-Texte) und in `LANGUAGES` in `src-tauri/src/settings.rs`. Die Texte in Chinesisch,
-Hindi, Spanisch und Französisch sind maschinell erstellt; Korrekturen von
-Muttersprachlern sind willkommen.
-
-## App-Icon bearbeiten
-
-Die bearbeitbare Quelle ist [`resources/icon.svg`](resources/icon.svg). Nach einer
-Änderung erzeugt das folgende Skript das transparente PNG in 1024 × 1024 Pixeln
-und die macOS-ICNS-Datei mit Größen von 16 bis 1024 Pixeln:
-
-```bash
-bash build/icons.sh
-```
-
-Dafür werden `rsvg-convert` aus librsvg und das macOS-Werkzeug `iconutil` benötigt.
-Für normale App-Builds werden die fertigen Icon-Dateien aus dem Repository
-verwendet; eine erneute Icon-Erzeugung ist nur nach Änderungen am SVG nötig.
-Anschließend baut `npm run package` die App mit dem aktualisierten Icon.
-Die Icon-Lizenz und die Aurora-Anpassung sind in
-[`resources/ICON-LICENSE.md`](resources/ICON-LICENSE.md) dokumentiert.
-
-## Prüfungen
+### Checks
 
 ```bash
 npm run check
@@ -230,68 +152,122 @@ cargo test --manifest-path src-tauri/Cargo.toml -- --include-ignored
 cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 ```
 
-Die separat gestarteten Integrationstests benötigen FFmpeg/ffprobe und auf macOS
-den automatisch gebauten Swift-Helfer. Sie arbeiten ausschließlich mit temporären
-Dateien. Geprüft werden reale Frame-Extraktion, Finder-Icons, unveränderte Videodaten,
-Überspringen, Fehlerfälle und Fortschrittsereignisse.
+The integration tests (run with `--include-ignored`) need FFmpeg/ffprobe and, on macOS,
+the automatically built Swift helper. They only work with temporary files and cover
+real frame extraction, Finder icons, unchanged video data, skipping, error cases and
+progress events.
 
-## Änderungen
+## Project structure
+
+```text
+src/
+  api.ts                  Tauri bridge and typed events
+  types.ts                Shared frontend types
+  i18n.ts                 All texts and error messages in six languages
+  renderer.tsx            React entry point
+  renderer/               User interface
+src-tauri/
+  src/main.rs             App, commands, processing and progress
+  src/error.rs            Error codes that the frontend translates
+  src/settings.rs         Storage, validation and migration
+  src/video.rs            Cross-platform video scanning and FFmpeg calls
+  src/platform/           File manager integration per operating system
+  build.rs                Builds the Swift helper on macOS only
+  tauri.conf.json         Shared app configuration
+  tauri.macos.conf.json   macOS helper and signing
+swift-helper/main.swift   Finder icon helper
+build/                    License collection, icon generation and ZIP packaging
+resources/                App icon and additional license texts
+docs/                     Design reference, platform plan, audits, screenshots
+```
+
+## Translations
+
+A new language needs an entry in `src/i18n.ts` (TypeScript reports missing texts) and
+in `LANGUAGES` in `src-tauri/src/settings.rs`. The Chinese, Hindi, Spanish and French
+texts are machine-made; corrections from native speakers are welcome.
+
+## Design
+
+The interface and app icon use the Aurora design: night blue, cyan for actions and
+focus, and a subtle violet background gradient. Everything happens in one main view;
+the frame slider lives only there. Long folder paths are available in full via
+tooltip, error messages in the file list expand to show the full file path and can be
+copied, and buttons, inputs and expandable details have visible keyboard focus.
+
+The [Aurora design reference and Figma brief](docs/aurora-app-design.md) (German)
+contains the full specification, including standards for future apps.
+
+### Editing the app icon
+
+The editable source is [`resources/icon.svg`](resources/icon.svg). After a change, this
+script generates the transparent 1024 × 1024 PNG and the macOS ICNS file with sizes
+from 16 to 1024 pixels:
+
+```bash
+bash build/icons.sh
+```
+
+It needs `rsvg-convert` from librsvg and the macOS tool `iconutil`. Regular builds use
+the icon files in the repository, so regenerating is only needed after changing the
+SVG. The icon license and the Aurora adaptation are documented in
+[`resources/ICON-LICENSE.md`](resources/ICON-LICENSE.md).
+
+## Changelog
 
 ### 1.6.0
 
-- Oberfläche in sechs Sprachen: Deutsch, Englisch, Chinesisch (vereinfacht), Hindi,
-  Spanisch und Französisch; Auswahl in den Einstellungen, Standard ist die Systemsprache
-- Fehler kommen aus Rust als feste Codes und werden im Frontend übersetzt; technische
-  Details bleiben unverändert
-- Screenshots und englische Kurzbeschreibung in der README
+- Interface in six languages: English, German, Chinese (Simplified), Hindi, Spanish and
+  French; chosen in Settings, defaulting to the system language
+- Errors come from Rust as stable codes and are translated in the frontend; technical
+  details are kept as-is
+- Screenshots and an English README
 
 ### 1.5.0
 
-- FFmpeg wird bei leerem Pfad bei jeder Verarbeitung gesucht, auch wenn es erst
-  nach dem ersten Start installiert wurde
-- Fehlendes ffmpeg, ffprobe oder ein fehlender Helfer wird einmal vor der ersten
-  Datei gemeldet, mit Installationshinweis und versuchtem Pfad
-- Verständliche deutsche Fehlermeldungen pro Datei; die technische Ausgabe steht
-  unter „Details“
-- Icons in 512 × 512 Pixeln mit transparentem Rand statt 320 Pixeln mit schwarzen Balken
-- „Keine Videos gefunden“ erscheint als neutraler Hinweis statt als Erfolg
-- Aurora-Oberfläche und dazu passendes App-Icon in Nachtblau und Cyan
-- Verständlichere Frame-Beschriftung und ein einziger Regler in der Hauptansicht
-- Bessere Lesbarkeit und vollständig zugängliche Pfade und Fehlerdetails
-- Wiederholbare PNG-/ICNS-Erzeugung aus der SVG-Quelle mit `build/icons.sh`
-- Vollständige, eigenständig lesbare Aurora-Designreferenz für weitere Apps und Figma
+- With no path set, FFmpeg is located on every run, even if it was installed after the
+  first launch
+- A missing ffmpeg, ffprobe or helper is reported once before the first file, with
+  installation advice and the path that was tried
+- Clear error messages per file, with the technical output under "Details"
+- 512 × 512 icons with transparent padding instead of 320 pixels with black bars
+- "No videos found" is shown as a neutral notice instead of a success
+- Aurora interface and matching app icon in night blue and cyan
+- Clearer frame label and a single slider in the main view
+- Better readability and fully accessible paths and error details
+- Reproducible PNG/ICNS generation from the SVG source with `build/icons.sh`
+- Complete, self-contained Aurora design reference for other apps and Figma
 
 ### 1.4.0
 
-- Electron durch Tauri und Rust ersetzt; React-Oberfläche auf TypeScript umgestellt
-- Keine gebündelte Chromium-/Node.js-Laufzeit mehr
-- Dateimanager-Integration vom portablen Verarbeitungskern getrennt
-- Bestehende Einstellungen übernommen; Eingaben validiert und atomar gespeichert
-- Native Tauri-Ordnerauswahl und Drag & Drop
-- Fortschrittsbalken berücksichtigt auch übersprungene und fehlerhafte Dateien
-- Vollständige Lizenztexte der neuen npm-/Rust-Abhängigkeiten werden mitgeliefert
+- Replaced Electron with Tauri and Rust; React interface moved to TypeScript
+- No bundled Chromium/Node.js runtime anymore
+- File manager integration separated from the portable processing core
+- Existing settings migrated; input validated and saved atomically
+- Native Tauri folder picker and drag and drop
+- Progress bar also counts skipped and failed files
+- Full license texts of the new npm/Rust dependencies are included
 
 ### 1.3.0
 
-- Autorenangabe TomPlaysNow, vollständige Fremdlizenztexte im Electron-Build
-- Programmcode unter MIT und App-Icon unter CC BY 4.0 dokumentiert
+- Author credit TomPlaysNow, full third-party license texts in the Electron build
+- Code under MIT and app icon under CC BY 4.0 documented
 
 ### 1.2.0
 
-- Neuer Name Thomnail (zuvor VideoThumb) und Migration der Einstellungen
+- New name Thomnail (formerly VideoThumb) and settings migration
 
-## Lizenz
+## License
 
-Programmcode: [MIT](LICENSE), © 2026 Tom (TomPlaysNow).
-App-Icon: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), siehe
+Code: [MIT](LICENSE), © 2026 Tom (TomPlaysNow).
+App icon: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), see
 [ICON-LICENSE.md](resources/ICON-LICENSE.md).
 
-Der Build sammelt vollständige Lizenz-/Hinweisdateien der npm-Produktionsabhängigkeiten
-und der aufgelösten Rust-Abhängigkeiten einschließlich Build-Werkzeugen und
-Rust-Runtime. Sie liegen in `Thomnail.app/Contents/Resources/licenses/`.
-Die Rust-Hinweise enthalten Links zu den unveränderten Quellpaketen. Einige Crates
-liefern ihre Lizenztexte nicht im Crate-Archiv mit; für die gesperrten Versionen
-liegen deshalb Texte aus den jeweiligen Quell-Repositories unter
-`resources/license-overrides/`, mit Herkunftsnachweisen in `sources.json`.
-Fehlt ein vollständiger Lizenztext, bricht der Release-Build ab.
-FFmpeg und ffprobe werden weiterhin separat installiert und nicht mitgeliefert.
+The build collects complete license and notice files for the npm production
+dependencies and the resolved Rust dependencies, including build tools and the Rust
+runtime. They are placed in `Thomnail.app/Contents/Resources/licenses/`. The Rust
+notices link to the unmodified source packages. Some crates do not ship their license
+texts in the crate archive; for the locked versions, texts from the respective source
+repositories are kept in `resources/license-overrides/`, with provenance in
+`sources.json`. The release build fails if a complete license text is missing.
+FFmpeg and ffprobe are installed separately and not bundled.
