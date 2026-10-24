@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbf1c7"/>
+      <stop offset="1" stop-color="#f2e5bc"/>
+    </linearGradient>
+  </defs>
+  <!-- Squircle, Gruvbox Light -->
+  <rect x="0" y="0" width="1024" height="1024" rx="230" fill="url(#bg2)"/>
+  <!-- Schatten der aktiven Zelle -->
+  <rect x="548" y="546" width="236" height="236" rx="28" fill="#d5c4a1"/>
+  <!-- Kontaktbogen-Grid 2x2 -->
+  <g fill="none" stroke="#928374" stroke-width="14">
+    <rect x="256" y="256" width="236" height="236" rx="28"/>
+    <rect x="532" y="256" width="236" height="236" rx="28"/>
+    <rect x="256" y="532" width="236" height="236" rx="28"/>
+  </g>
+  <!-- Berg-Andeutung in Zelle oben links -->
+  <path d="M292 452 L362 372 L408 424 L440 388 L478 452" fill="none" stroke="#928374" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Aktive Zelle: Orange mit Play -->
+  <rect x="532" y="532" width="236" height="236" rx="28" fill="#fe8019"/>
+  <path d="M612 600 L692 650 L612 700 Z" fill="#fbf1c7"/>
+</svg>

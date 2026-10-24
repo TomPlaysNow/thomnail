@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#343948"/>
+      <stop offset="1" stop-color="#20232e"/>
+    </linearGradient>
+  </defs>
+  <!-- Squircle -->
+  <rect x="0" y="0" width="1024" height="1024" rx="230" fill="url(#bg1)"/>
+  <!-- Filmstreifen -->
+  <rect x="152" y="312" width="720" height="400" rx="40" fill="#454b5e"/>
+  <!-- Lochreihen: 8 Loecher, symmetrisch (44px Rand links/rechts) -->
+  <g fill="#20232e">
+    <rect x="196" y="346" width="44" height="26" rx="8"/>
+    <rect x="280" y="346" width="44" height="26" rx="8"/>
+    <rect x="364" y="346" width="44" height="26" rx="8"/>
+    <rect x="448" y="346" width="44" height="26" rx="8"/>
+    <rect x="532" y="346" width="44" height="26" rx="8"/>
+    <rect x="616" y="346" width="44" height="26" rx="8"/>
+    <rect x="700" y="346" width="44" height="26" rx="8"/>
+    <rect x="784" y="346" width="44" height="26" rx="8"/>
+    <rect x="196" y="652" width="44" height="26" rx="8"/>
+    <rect x="280" y="652" width="44" height="26" rx="8"/>
+    <rect x="364" y="652" width="44" height="26" rx="8"/>
+    <rect x="448" y="652" width="44" height="26" rx="8"/>
+    <rect x="532" y="652" width="44" height="26" rx="8"/>
+    <rect x="616" y="652" width="44" height="26" rx="8"/>
+    <rect x="700" y="652" width="44" height="26" rx="8"/>
+    <rect x="784" y="652" width="44" height="26" rx="8"/>
+  </g>
+  <!-- Play-Dreieck -->
+  <path d="M445 400 L655 512 L445 624 Z" fill="#D6F0F7"/>
+</svg>
