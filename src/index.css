@@ -1,0 +1,311 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px 24px;
+  gap: 16px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #cba6f7;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #a6adc8;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.btn-icon:hover {
+  background: #313244;
+}
+
+/* DropZone */
+.dropzone {
+  border: 2px dashed #585b70;
+  border-radius: 12px;
+  padding: 32px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.dropzone:hover {
+  border-color: #cba6f7;
+  background: #1e1e2e;
+}
+
+.dropzone-empty,
+.dropzone-selected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.dropzone-icon {
+  font-size: 2rem;
+}
+
+.dropzone-label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.dropzone-path {
+  font-size: 0.85rem;
+  color: #cba6f7;
+  word-break: break-all;
+}
+
+.dropzone-hint {
+  font-size: 0.75rem;
+  color: #6c7086;
+}
+
+/* Buttons */
+.btn-primary {
+  background: #cba6f7;
+  color: #1e1e2e;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: center;
+}
+
+.btn-primary:hover {
+  background: #b4befe;
+}
+
+.btn-secondary {
+  background: #313244;
+  color: #cdd6f4;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #45475a;
+}
+
+/* Progress */
+.progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: #313244;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: #cba6f7;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.progress-label {
+  font-size: 0.8rem;
+  color: #a6adc8;
+  white-space: nowrap;
+}
+
+/* File list */
+.file-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.file-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #181825;
+  font-size: 0.85rem;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.file-error {
+  font-size: 0.72rem;
+  color: #f38ba8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.status-pending .file-status { color: #6c7086; }
+.status-processing .file-status { color: #fab387; }
+.status-done .file-status { color: #a6e3a1; }
+.status-error .file-status { color: #f38ba8; }
+
+/* Summary */
+.summary {
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.summary.success { background: #1e3a2e; color: #a6e3a1; }
+.summary.partial  { background: #3a1e1e; color: #f38ba8; }
+
+/* Timepicker-Row – direkt in der Hauptansicht */
+.timepicker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #181825;
+  border-radius: 8px;
+}
+
+.timepicker-label {
+  font-size: 0.8rem;
+  color: #a6adc8;
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+.timepicker-slider {
+  flex: 1;
+  accent-color: #cba6f7;
+  cursor: pointer;
+}
+
+.timepicker-slider:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.timepicker-value {
+  font-size: 0.85rem;
+  color: #cba6f7;
+  font-weight: 600;
+  min-width: 3ch;
+  text-align: right;
+}
+
+/* Settings overlay */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.settings-panel {
+  background: #24273a;
+  border-radius: 12px;
+  padding: 24px;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-panel h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #cba6f7;
+}
+
+.settings-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #a6adc8;
+}
+
+.settings-panel input[type="text"] {
+  background: #1e1e2e;
+  border: 1px solid #45475a;
+  border-radius: 6px;
+  color: #cdd6f4;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+.range-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.range-row input[type="range"] {
+  flex: 1;
+  accent-color: #cba6f7;
+}
+
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
