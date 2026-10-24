@@ -1,8 +1,8 @@
 {
   "name": "thomnail",
   "productName": "Thomnail",
-  "version": "1.2.0",
-  "description": "Setzt Video-Frames als Finder-Icons für Videodateien (macOS)",
+  "version": "1.3.0",
+  "description": "Setzt Video-Frames als Finder-Icons f\u00fcr Videodateien (macOS)",
   "main": ".webpack/main",
   "private": true,
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "author": {
-    "name": "Tom",
+    "name": "TomPlaysNow",
     "email": "143933295+TomPlaysNow@users.noreply.github.com"
   },
   "license": "MIT",

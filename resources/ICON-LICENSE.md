@@ -1,8 +1,8 @@
 # Lizenz des App-Icons
 
-Das App-Icon von Thomnail wurde von Tom erstellt.
+Das App-Icon von Thomnail wurde von TomPlaysNow erstellt.
 
-Copyright © 2026 Tom.
+Copyright © 2026 Tom (TomPlaysNow).
 
 Die folgenden Dateien stehen unter **Creative Commons Namensnennung 4.0
 International (CC BY 4.0)**:
@@ -22,7 +22,7 @@ verlinkte Lizenztext.
 
 Beispiel für die Namensnennung bei unveränderter Nutzung:
 
-> Thomnail App-Icon — © 2026 Tom, CC BY 4.0,
+> Thomnail App-Icon — © 2026 Tom (TomPlaysNow), CC BY 4.0,
 > https://creativecommons.org/licenses/by/4.0/
 
 Diese Lizenzzuordnung gilt ausschließlich für die oben genannten Icon-Dateien.

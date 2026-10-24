@@ -1,4 +1,5 @@
 module.exports = {
+  plugins: [new (require('./build/license-notices-plugin'))()],
   /**
    * This is the main entry point for your application, it's the first file
    * that runs in the main process.

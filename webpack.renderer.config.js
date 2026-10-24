@@ -6,6 +6,7 @@ rules.push({
 });
 
 module.exports = {
+  plugins: [new (require('./build/license-notices-plugin'))()],
   module: {
     rules,
   },

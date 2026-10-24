@@ -1,8 +1,8 @@
 # Thomnail
 
-Thomnail ist eine macOS-App von **Tom**, die aus jedem Video in einem Ordner einen Frame herausnimmt und ihn als **Finder-Icon** der Videodatei setzt. Im Finder siehst du dann statt des generischen Dateisymbols sofort, was im Video steckt – auch in Ordnern, Spotlight und auf externen Laufwerken, wo macOS selbst keine Vorschau erzeugt.
+Thomnail ist eine macOS-App von **TomPlaysNow**, die aus jedem Video in einem Ordner einen Frame herausnimmt und ihn als **Finder-Icon** der Videodatei setzt. Im Finder siehst du dann statt des generischen Dateisymbols sofort, was im Video steckt – auch in Ordnern, Spotlight und auf externen Laufwerken, wo macOS selbst keine Vorschau erzeugt.
 
-Aktuelle Version: **1.2.0**
+Aktuelle Version: **1.3.0**
 
 ## Funktionen
 
@@ -160,6 +160,13 @@ resources/swift-helper /pfad/zum/video.mp4 /pfad/zum/bild.png
 
 ## Änderungen
 
+### 1.3.0
+
+- Eindeutige Autorenangabe: **TomPlaysNow**
+- Vollständige Fremdlizenztexte werden automatisch in App und ZIP mitgeliefert
+- Programmcode unter MIT, App-Icon unter CC BY 4.0 dokumentiert
+- Nicht verwendete Icon-Entwürfe und frühere Herstellerangaben entfernt
+
 ### 1.2.0
 
 - Neuer Name: **Thomnail** (vorher VideoThumb)
@@ -182,9 +189,15 @@ resources/swift-helper /pfad/zum/video.mp4 /pfad/zum/bild.png
 
 ## Lizenz
 
-Der Programmcode steht unter der [MIT-Lizenz](LICENSE). © 2026 Tom.
+Der Programmcode steht unter der [MIT-Lizenz](LICENSE). © 2026 Tom (TomPlaysNow).
 
-Das von Tom erstellte App-Icon (`resources/icon.svg`, `resources/icon.png` und
+Das von TomPlaysNow erstellte App-Icon (`resources/icon.svg`, `resources/icon.png` und
 `resources/icon.icns`) steht unter [Creative Commons Namensnennung 4.0 International
-(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). © 2026 Tom.
+(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). © 2026 Tom (TomPlaysNow).
 Weitere Angaben stehen in [resources/ICON-LICENSE.md](resources/ICON-LICENSE.md).
+
+Die Lizenztexte der gebündelten Fremdkomponenten werden beim Bauen automatisch
+gesammelt und zusammen mit den Electron-/Chromium-Lizenzen in
+`Thomnail.app/Contents/Resources/` abgelegt. Im Finder erreichst du sie über
+Rechtsklick auf die App → **Paketinhalt zeigen** → `Contents/Resources`.
+FFmpeg und ffprobe werden separat installiert und nicht mitgeliefert.

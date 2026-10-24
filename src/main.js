@@ -34,7 +34,7 @@ function setupAboutPanel() {
     applicationName: 'Thomnail',
     applicationVersion: app.getVersion(),
     version: `${process.arch}`,
-    copyright: '© 2026 Tom · MIT-Lizenz',
+    copyright: '© 2026 TomPlaysNow · MIT-Lizenz',
     credits: [
       'Setzt einen Frame aus jedem Video als Finder-Icon der Datei.',
       '',
@@ -49,7 +49,7 @@ function setupAboutPanel() {
       '',
       `Electron ${v.electron} · Chromium ${v.chrome} · Node ${v.node}`,
       '',
-      'github.com/TomPlaysNow/videothumb',
+      'github.com/TomPlaysNow/thomnail',
     ].join('\n'),
   });
 }

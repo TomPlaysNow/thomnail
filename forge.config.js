@@ -19,6 +19,21 @@ module.exports = {
       const path = require('path');
       for (const dir of outputPaths) {
         for (const entry of fs.readdirSync(dir).filter((f) => f.endsWith('.app'))) {
+          const resources = path.join(dir, entry, 'Contents', 'Resources');
+          const asar = require('@electron/asar');
+          const archive = path.join(resources, 'app.asar');
+          const notices = asar.listPackage(archive)
+            .filter((file) => file.endsWith('/THIRD_PARTY_LICENSES.txt'))
+            .map((file) => asar.extractFile(archive, file.replace(/^\//, '')).toString());
+          if (!notices.length) throw new Error('Bundled dependency licenses are missing');
+          fs.writeFileSync(path.join(resources, 'THIRD_PARTY_LICENSES.txt'), notices.join('\n\n'));
+          // Forge's ZIP maker includes the .app, not the files beside it.
+          for (const file of ['LICENSE', 'LICENSES.chromium.html']) {
+            fs.copyFileSync(path.join(dir, file), path.join(resources,
+              file === 'LICENSE' ? 'LICENSE.electron.txt' : file));
+          }
+          fs.copyFileSync(path.join(__dirname, 'LICENSE'), path.join(resources, 'LICENSE.thomnail.txt'));
+          fs.copyFileSync(path.join(__dirname, 'resources', 'ICON-LICENSE.md'), path.join(resources, 'ICON-LICENSE.md'));
           execFileSync('codesign', ['--force', '--deep', '--sign', '-', path.join(dir, entry)]);
         }
       }
